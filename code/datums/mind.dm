@@ -55,6 +55,10 @@
 
 	var/rev_cooldown = 0
 	var/tcrystals = 0
+	var/list/purchase_log = new
+	var/used_TC = 0
+
+	var/list/learned_recipes //List of learned recipe TYPES.
 
 	// the world.time since the mob has been brigged, or -1 if not at all
 	var/brigged_since = -1
@@ -73,7 +77,7 @@
 
 /datum/mind/New(var/key)
 	src.key = key
-
+	purchase_log = list()
 	..()
 
 /datum/mind/proc/transfer_to(mob/living/new_character)
@@ -236,8 +240,8 @@
 
 				var/mob/def_target = null
 				var/objective_list[] = list(/datum/objective/assassinate, /datum/objective/protect, /datum/objective/debrain)
-				if (objective&&(objective.type in objective_list) && objective:target)
-					def_target = objective:target.current
+				if (objective&&(objective.type in objective_list) && objective.target)
+					def_target = objective.target.current
 
 				var/new_target = input("Select target:", "Objective target", def_target) as null|anything in possible_targets
 				if (!new_target) return
@@ -511,8 +515,9 @@
 
 //HUMAN
 /mob/living/carbon/human/mind_initialize()
-	..()
-	if(!mind.assigned_role)	mind.assigned_role = "Assistant"	//defualt
+	. = ..()
+	if(!mind.assigned_role)
+		mind.assigned_role = "Assistant"	//defualt
 
 //slime
 /mob/living/simple_mob/slime/mind_initialize()

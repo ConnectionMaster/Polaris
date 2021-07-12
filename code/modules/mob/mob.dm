@@ -48,19 +48,19 @@
 	if(!client && !teleop)	return
 
 	if (type)
-		if((type & 1) && (is_blind() || paralysis) )//Vision related
+		if((type & VISIBLE_MESSAGE) && (is_blind() || paralysis) )//Vision related
 			if (!( alt ))
 				return
 			else
 				msg = alt
 				type = alt_type
-		if ((type & 2) && is_deaf())//Hearing related
+		if ((type & AUDIBLE_MESSAGE) && is_deaf())//Hearing related
 			if (!( alt ))
 				return
 			else
 				msg = alt
 				type = alt_type
-				if ((type & 1) && (sdisabilities & BLIND))
+				if ((type & VISIBLE_MESSAGE) && (sdisabilities & BLIND))
 					return
 	// Added voice muffling for Issue 41.
 	if(stat == UNCONSCIOUS || sleeping > 0)
@@ -76,14 +76,19 @@
 // message is the message output to anyone who can see e.g. "[src] does something!"
 // self_message (optional) is what the src mob sees  e.g. "You do something!"
 // blind_message (optional) is what blind people will hear e.g. "You hear something!"
-/mob/visible_message(var/message, var/self_message, var/blind_message, var/list/exclude_mobs = null)
+/mob/visible_message(var/message, var/self_message, var/blind_message, var/list/exclude_mobs = null, var/range = world.view, var/runemessage)
 	if(self_message)
 		if(LAZYLEN(exclude_mobs))
 			exclude_mobs |= src
 		else
 			exclude_mobs = list(src)
 		src.show_message(self_message, 1, blind_message, 2)
-	. = ..(message, blind_message, exclude_mobs)
+	// Transfer messages about what we are doing to upstairs
+	if(shadow)
+		shadow.visible_message(message, self_message, blind_message, exclude_mobs, range)
+	if(isnull(runemessage))
+		runemessage = -1
+	. = ..(message, blind_message, exclude_mobs, range, runemessage) // Really not ideal that atom/visible_message has different arg numbering :(
 
 // Returns an amount of power drawn from the object (-1 if it's not viable).
 // If drain_check is set it will not actually drain power, just return a value.
@@ -98,7 +103,7 @@
 // self_message (optional) is what the src mob hears.
 // deaf_message (optional) is what deaf people will see.
 // hearing_distance (optional) is the range, how many tiles away the message can be heard.
-/mob/audible_message(var/message, var/deaf_message, var/hearing_distance, var/self_message)
+/mob/audible_message(var/message, var/deaf_message, var/hearing_distance, var/self_message, var/radio_message, var/runemessage)
 
 	var/range = hearing_distance || world.view
 	var/list/hear = get_mobs_and_objs_in_view_fast(get_turf(src),range,remote_ghosts = FALSE)
@@ -106,16 +111,26 @@
 	var/list/hearing_mobs = hear["mobs"]
 	var/list/hearing_objs = hear["objs"]
 
-	for(var/obj in hearing_objs)
-		var/obj/O = obj
-		O.show_message(message, 2, deaf_message, 1)
+	if(isnull(runemessage))
+		runemessage = -1 // Symmetry with mob/audible_message, despite the fact this one doesn't call parent. Maybe it should!
+
+	if(radio_message)
+		for(var/obj in hearing_objs)
+			var/obj/O = obj
+			O.hear_talk(src, list(new /datum/multilingual_say_piece(GLOB.all_languages["Noise"], radio_message)), null)
+	else
+		for(var/obj in hearing_objs)
+			var/obj/O = obj
+			O.show_message(message, AUDIBLE_MESSAGE, deaf_message, VISIBLE_MESSAGE)
 
 	for(var/mob in hearing_mobs)
 		var/mob/M = mob
 		var/msg = message
 		if(self_message && M==src)
 			msg = self_message
-		M.show_message(msg, 2, deaf_message, 1)
+		M.show_message(msg, AUDIBLE_MESSAGE, deaf_message, VISIBLE_MESSAGE)
+		if(runemessage != -1)
+			M.create_chat_message(src, "[runemessage || message]", FALSE, list("emote"), audible = FALSE)
 
 /mob/proc/findname(msg)
 	for(var/mob/M in mob_list)
@@ -193,29 +208,6 @@
 				client.eye = loc
 		return TRUE
 
-
-/mob/proc/show_inv(mob/user as mob)
-	return
-
-//mob verbs are faster than object verbs. See http://www.byond.com/forum/?post=1326139&page=2#comment8198716 for why this isn't atom/verb/examine()
-/mob/verb/examinate(atom/A as mob|obj|turf in view())
-	set name = "Examine"
-	set category = "IC"
-
-	if((is_blind(src) || usr.stat) && !isobserver(src))
-		to_chat(src, "<span class='notice'>Something is there but you can't see it.</span>")
-		return 1
-
-	//Could be gone by the time they finally pick something
-	if(!A)
-		return 1
-
-	face_atom(A)
-	var/list/results = A.examine(src)
-	if(!results || !results.len)
-		results = list("You were unable to examine that. Tell a developer!")
-	to_chat(src, jointext(results, "<br>"))
-
 /mob/verb/pointed(atom/A as mob|obj|turf in view())
 	set name = "Point To"
 	set category = "Object"
@@ -247,7 +239,7 @@
 	return 1
 
 
-/mob/proc/ret_grab(obj/effect/list_container/mobl/L as obj, flag)
+/mob/proc/ret_grab(list/L, flag)
 	return
 
 /mob/verb/mode()
@@ -478,16 +470,6 @@
 /mob/proc/pull_damage()
 	return 0
 
-/mob/MouseDrop(mob/M as mob)
-	..()
-	if(M != usr) return
-	if(usr == src) return
-	if(!Adjacent(usr)) return
-	if(usr.incapacitated(INCAPACITATION_STUNNED | INCAPACITATION_FORCELYING | INCAPACITATION_KNOCKOUT | INCAPACITATION_RESTRAINED)) return //Incapacitated.
-	if(istype(M,/mob/living/silicon/ai)) return
-	show_inv(usr)
-
-
 /mob/verb/stop_pulling()
 
 	set name = "Stop Pulling"
@@ -608,9 +590,6 @@
 /mob/proc/get_gender()
 	return gender
 
-/mob/proc/get_visible_gender()
-	return gender
-
 /mob/proc/see(message)
 	if(!is_active())
 		return 0
@@ -639,10 +618,6 @@
 				stat("CPU:","[world.cpu]")
 				stat("Instances:","[world.contents.len]")
 				stat(null, "Time Dilation: [round(SStime_track.time_dilation_current,1)]% AVG:([round(SStime_track.time_dilation_avg_fast,1)]%, [round(SStime_track.time_dilation_avg,1)]%, [round(SStime_track.time_dilation_avg_slow,1)]%)")
-
-			if(statpanel("Processes"))
-				if(processScheduler)
-					processScheduler.statProcesses()
 
 			if(statpanel("MC"))
 				stat("Location:", "([x], [y], [z]) [loc]")
@@ -874,7 +849,7 @@
 /mob/proc/embedded_needs_process()
 	return (embedded.len > 0)
 
-mob/proc/yank_out_object()
+/mob/proc/yank_out_object()
 	set category = "Object"
 	set name = "Yank out object"
 	set desc = "Remove an embedded item at the cost of bleeding and pain."

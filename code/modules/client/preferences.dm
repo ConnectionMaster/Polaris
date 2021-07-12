@@ -2,7 +2,7 @@
 
 var/list/preferences_datums = list()
 
-datum/preferences
+/datum/preferences
 	//doohickeys for savefiles
 	var/path
 	var/default_slot = 1				//Holder so it doesn't default to slot 1, rather the last one used
@@ -162,8 +162,8 @@ datum/preferences
 		if(!IsGuestKey(C.key))
 			load_path(C.ckey)
 			if(load_preferences())
-				if(load_character())
-					return
+				load_character()
+
 
 /datum/preferences/proc/ZeroSkills(var/forced = 0)
 	for(var/V in SKILLS) for(var/datum/skill/S in SKILLS[V])

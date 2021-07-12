@@ -225,6 +225,11 @@
 					new /obj/item/weapon/reagent_containers/food/snacks/carrotfries(get_turf(src))
 					qdel(src)
 					return
+				else if(!isnull(seed.chems["pineapplejuice"]))
+					to_chat(user, "You slice \the [src] into rings.")
+					new /obj/item/weapon/reagent_containers/food/snacks/pineapple_ring(get_turf(src))
+					qdel(src)
+					return
 				else if(!isnull(seed.chems["soymilk"]))
 					to_chat(user, "You roughly chop up \the [src].")
 					new /obj/item/weapon/reagent_containers/food/snacks/soydope(get_turf(src))
@@ -234,7 +239,7 @@
 					to_chat(user, "You slice up \the [src].")
 					var/slices = rand(3,5)
 					var/reagents_to_transfer = round(reagents.total_volume/slices)
-					for(var/i=i;i<=slices;i++)
+					for(var/i=1; i<=slices; i++)
 						var/obj/item/weapon/reagent_containers/food/snacks/fruit_slice/F = new(get_turf(src),seed)
 						if(reagents_to_transfer) reagents.trans_to_obj(F,reagents_to_transfer)
 					qdel(src)

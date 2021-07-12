@@ -127,7 +127,7 @@
 		/obj/item/seeds/riceseed = 3,
 		/obj/item/seeds/rose = 3,
 		/obj/item/seeds/soyaseed = 3,
-		/obj/item/seeds/spineapple = 3,
+		/obj/item/seeds/pineapple = 3,
 		/obj/item/seeds/sugarcaneseed = 3,
 		/obj/item/seeds/sunflowerseed = 3,
 		/obj/item/seeds/shandseed = 2,
@@ -185,7 +185,7 @@
 		/obj/item/seeds/riceseed = 3,
 		/obj/item/seeds/rose = 3,
 		/obj/item/seeds/soyaseed = 3,
-		/obj/item/seeds/spineapple = 3,
+		/obj/item/seeds/pineapple = 3,
 		/obj/item/seeds/sugarcaneseed = 3,
 		/obj/item/seeds/sunflowerseed = 3,
 		/obj/item/seeds/shandseed = 2,
@@ -523,7 +523,7 @@
 		if(lockdown)
 			to_chat(user, "<span class='notice'>\The [src]'s control panel thunks, as its cover retracts.</span>")
 			lockdown = 0
-		if(req_access || req_one_access)
+		if(LAZYLEN(req_access) || LAZYLEN(req_one_access))
 			req_access = list()
 			req_one_access = list()
 			to_chat(user, "<span class='warning'>\The [src]'s access mechanism shorts out.</span>")

@@ -188,7 +188,7 @@
 	throwforce = 2
 	slot_flags = SLOT_EARS
 	sprite_sheets = list(
-		SPECIES_TESHARI = 'icons/mob/species/seromi/ears.dmi')
+		SPECIES_TESHARI = 'icons/mob/species/teshari/ears.dmi')
 
 /obj/item/clothing/ears/attack_hand(mob/user as mob)
 	if (!user) return
@@ -287,7 +287,7 @@
 	slot_flags = SLOT_GLOVES
 	attack_verb = list("challenged")
 	sprite_sheets = list(
-		SPECIES_TESHARI = 'icons/mob/species/seromi/gloves.dmi',
+		SPECIES_TESHARI = 'icons/mob/species/teshari/gloves.dmi',
 		SPECIES_VOX = 'icons/mob/species/vox/gloves.dmi'
 		)
 	drop_sound = 'sound/items/drop/gloves.ogg'
@@ -429,7 +429,7 @@
 	var/image/helmet_light
 
 	sprite_sheets = list(
-		SPECIES_TESHARI = 'icons/mob/species/seromi/head.dmi',
+		SPECIES_TESHARI = 'icons/mob/species/teshari/head.dmi',
 		SPECIES_VOX = 'icons/mob/species/vox/head.dmi'
 		)
 	drop_sound = 'sound/items/drop/hat.ogg'
@@ -535,7 +535,7 @@
 	body_parts_covered = FACE|EYES
 	blood_sprite_state = "maskblood"
 	sprite_sheets = list(
-		SPECIES_TESHARI = 'icons/mob/species/seromi/masks.dmi',
+		SPECIES_TESHARI = 'icons/mob/species/teshari/masks.dmi',
 		SPECIES_VOX = 'icons/mob/species/vox/masks.dmi',
 		SPECIES_TAJ = 'icons/mob/species/tajaran/mask.dmi',
 		SPECIES_UNATHI = 'icons/mob/species/unathi/mask.dmi'
@@ -589,7 +589,7 @@
 	var/overshoes = 0
 	species_restricted = list("exclude",SPECIES_TESHARI, SPECIES_VOX)
 	sprite_sheets = list(
-		SPECIES_TESHARI = 'icons/mob/species/seromi/shoes.dmi',
+		SPECIES_TESHARI = 'icons/mob/species/teshari/shoes.dmi',
 		SPECIES_VOX = 'icons/mob/species/vox/shoes.dmi'
 		)
 	drop_sound = 'sound/items/drop/shoes.ogg'
@@ -700,7 +700,7 @@
 
 
 	sprite_sheets = list(
-		SPECIES_TESHARI = 'icons/mob/species/seromi/suit.dmi',
+		SPECIES_TESHARI = 'icons/mob/species/teshari/suit.dmi',
 		SPECIES_VOX = 'icons/mob/species/vox/suit.dmi'
 		)
 
@@ -731,13 +731,13 @@
 /obj/item/clothing/suit/equipped(var/mob/user, var/slot)
 	if(ishuman(user))
 		var/mob/living/carbon/human/H = user
-		if((taurized && !isTaurTail(H.tail_style)) || (!taurized && isTaurTail(H.tail_style)))
+		if((taurized && !istaurtail(H.tail_style)) || (!taurized && istaurtail(H.tail_style)))
 			taurize(user)
 
 	return ..()
 
 /obj/item/clothing/suit/proc/taurize(var/mob/living/carbon/human/Taur)
-	if(isTaurTail(Taur.tail_style))
+	if(istaurtail(Taur.tail_style))
 		var/datum/sprite_accessory/tail/taur/taurtail = Taur.tail_style
 		if(taurtail.suit_sprites && (get_worn_icon_state(slot_wear_suit_str) in cached_icon_states(taurtail.suit_sprites)))
 			icon_override = taurtail.suit_sprites
@@ -794,7 +794,7 @@
 	var/rolled_down = -1 //0 = unrolled, 1 = rolled, -1 = cannot be toggled
 	var/rolled_sleeves = -1 //0 = unrolled, 1 = rolled, -1 = cannot be toggled
 	sprite_sheets = list(
-		SPECIES_TESHARI = 'icons/mob/species/seromi/uniform.dmi',
+		SPECIES_TESHARI = 'icons/mob/species/teshari/uniform.dmi',
 		SPECIES_VOX = 'icons/mob/species/vox/uniform.dmi'
 		)
 
@@ -883,7 +883,7 @@
 		under_icon = rolled_down_icon
 
 	// The _s is because the icon update procs append it.
-	if((under_icon == rolled_down_icon && "[worn_state]_s" in cached_icon_states(under_icon)) || ("[worn_state]_d_s" in cached_icon_states(under_icon)))
+	if((under_icon == rolled_down_icon && ("[worn_state]_s" in cached_icon_states(under_icon))) || ("[worn_state]_d_s" in cached_icon_states(under_icon)))
 		if(rolled_down != 1)
 			rolled_down = 0
 	else
@@ -908,7 +908,7 @@
 		under_icon = new /icon("[INV_W_UNIFORM_DEF_ICON]_[index].dmi")
 
 	// The _s is because the icon update procs append it.
-	if((under_icon == rolled_down_sleeves_icon && "[worn_state]_s" in cached_icon_states(under_icon)) || ("[worn_state]_r_s" in cached_icon_states(under_icon)))
+	if((under_icon == rolled_down_sleeves_icon && ("[worn_state]_s" in cached_icon_states(under_icon))) || ("[worn_state]_r_s" in cached_icon_states(under_icon)))
 		if(rolled_sleeves != 1)
 			rolled_sleeves = 0
 	else
@@ -972,7 +972,6 @@
 	set category = "Object"
 	set src in usr
 	set_sensors(usr)
-	..()
 
 /obj/item/clothing/under/verb/rollsuit()
 	set name = "Roll Down Jumpsuit"

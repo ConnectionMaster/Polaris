@@ -99,6 +99,13 @@
 //Area flags, possibly more to come
 #define RAD_SHIELDED 1 //shielded from radiation, clearly
 
+// OnTopic return values
+#define TOPIC_NOACTION 0
+#define TOPIC_HANDLED 1
+#define TOPIC_REFRESH 2
+#define TOPIC_UPDATE_PREVIEW 4
+#define TOPIC_REFRESH_UPDATE_PREVIEW (TOPIC_REFRESH|TOPIC_UPDATE_PREVIEW)
+
 // Convoluted setup so defines can be supplied by Bay12 main server compile script.
 // Should still work fine for people jamming the icons into their repo.
 #ifndef CUSTOM_ITEM_OBJ
@@ -113,57 +120,6 @@
 
 #define WALL_CAN_OPEN 1
 #define WALL_OPENING 2
-
-#define DEFAULT_TABLE_MATERIAL "plastic"
-#define DEFAULT_WALL_MATERIAL "steel"
-
-#define MAT_IRON			"iron"
-#define MAT_MARBLE			"marble"
-#define MAT_STEEL			"steel"
-#define MAT_PLASTIC			"plastic"
-#define MAT_GLASS			"glass"
-#define MAT_SILVER			"silver"
-#define MAT_GOLD			"gold"
-#define MAT_URANIUM			"uranium" //Did it
-#define MAT_TITANIUM		"titanium"
-#define MAT_PHORON			"phoron"
-#define MAT_DIAMOND			"diamond"
-#define MAT_SNOW			"snow"
-#define MAT_WOOD			"wood"
-#define MAT_LOG				"log"
-#define MAT_SIFWOOD			"alien wood"
-#define MAT_SIFLOG			"alien log"
-#define MAT_STEELHULL		"steel hull"
-#define MAT_PLASTEEL		"plasteel"
-#define MAT_PLASTEELHULL	"plasteel hull"
-#define MAT_DURASTEEL		"durasteel"
-#define MAT_DURASTEELHULL	"durasteel hull"
-#define MAT_TITANIUMHULL	"titanium hull"
-#define MAT_VERDANTIUM		"verdantium"
-#define MAT_MORPHIUM		"morphium"
-#define MAT_MORPHIUMHULL	"morphium hull"
-#define MAT_VALHOLLIDE		"valhollide"
-#define MAT_LEAD			"lead"
-#define MAT_SUPERMATTER		"supermatter"
-#define MAT_METALHYDROGEN	"mhydrogen"
-#define MAT_OSMIUM			"osmium"
-#define MAT_GRAPHITE		"graphite"
-#define MAT_LEATHER			"leather"
-#define MAT_CHITIN			"chitin"
-#define MAT_CLOTH			"cloth"
-#define MAT_SYNCLOTH		"syncloth"
-
-#define SHARD_SHARD "shard"
-#define SHARD_SHRAPNEL "shrapnel"
-#define SHARD_STONE_PIECE "piece"
-#define SHARD_SPLINTER "splinters"
-#define SHARD_NONE ""
-
-#define MATERIAL_UNMELTABLE 0x1
-#define MATERIAL_BRITTLE    0x2
-#define MATERIAL_PADDING    0x4
-
-#define TABLE_BRITTLE_MATERIAL_MULTIPLIER 4 // Amount table damage is multiplied by if it is made of a brittle material (e.g. glass)
 
 #define BOMBCAP_DVSTN_RADIUS (max_explosion_range/4)
 #define BOMBCAP_HEAVY_RADIUS (max_explosion_range/2)
@@ -240,8 +196,6 @@
 
 #define MIDNIGHT_ROLLOVER		864000	//number of deciseconds in a day
 
-#define WORLD_ICON_SIZE 32 //Needed for the R-UST port
-#define PIXEL_MULTIPLIER WORLD_ICON_SIZE/32 //Needed for the R-UST port
 #define MAX_CLIENT_VIEW	34  // Maximum effective value of client.view (According to DM references)
 
 // Maploader bounds indices
@@ -478,3 +432,24 @@ GLOBAL_LIST_INIT(all_volume_channels, list(
 #define NTOS_EMAIL_NONEWMESSAGES	0
 #define NTOS_EMAIL_NOTIFALREADY		1
 #define NTOS_EMAIL_NEWMESSAGE		2
+
+#define GET_DECL(D) (ispath(D, /decl) ? (decls_repository.fetched_decls[D] || decls_repository.get_decl(D)) : null)
+
+#define LOADOUT_WHITELIST_OFF    0
+#define LOADOUT_WHITELIST_LAX    1
+#define LOADOUT_WHITELIST_STRICT 2
+
+
+#ifndef WINDOWS_HTTP_POST_DLL_LOCATION
+#define WINDOWS_HTTP_POST_DLL_LOCATION "lib/byhttp.dll"
+#endif
+
+#ifndef UNIX_HTTP_POST_DLL_LOCATION
+#define UNIX_HTTP_POST_DLL_LOCATION "lib/libbyhttp.so"
+#endif
+
+#ifndef HTTP_POST_DLL_LOCATION
+#define HTTP_POST_DLL_LOCATION (world.system_type == MS_WINDOWS ? WINDOWS_HTTP_POST_DLL_LOCATION : UNIX_HTTP_POST_DLL_LOCATION)
+#endif
+
+#define DOCK_ATTEMPT_TIMEOUT 200	//how long in ticks we wait before assuming the docking controller is broken or blown up.

@@ -63,7 +63,6 @@
 	desc = "A collection of black pouches that can be attached to a plate carrier. Carries up to four items."
 	icon_state = "lpouches"
 	slots = 4
-	slowdown = 0.25
 
 /obj/item/clothing/accessory/storage/pouches/large/blue
 	desc = "A collection of blue pouches that can be attached to a plate carrier. Carries up to four items."
@@ -91,6 +90,12 @@
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO
 	armor = list(melee = 30, bullet = 15, laser = 40, energy = 10, bomb = 25, bio = 0, rad = 0)
 	slot = ACCESSORY_SLOT_ARMOR_C
+
+/obj/item/clothing/accessory/armor/armorplate/explorer
+	name = "explorer armor plate"
+	desc = "A flexible plate made of synthetic fibers, designed to protect from the Sivian fauna. Attaches to a plate carrier."
+	icon_state = "armor_light"
+	armor = list(melee = 30, bullet = 20, laser = 20, energy = 20, bomb = 35, bio = 75, rad = 35)
 
 /obj/item/clothing/accessory/armor/armorplate/stab
 	name = "mesh armor plate"
@@ -128,7 +133,7 @@
 	name = "ballistic armor plate"
 	desc = "A woven armor plate with additional plating, providing good protection against high-velocity trauma. Attaches to a plate carrier."
 	icon_state = "armor_ballistic"
-	slowdown = 0.6
+	slowdown = 0.5
 	armor = list(melee = 10, bullet = 70, laser = 10, energy = 10, bomb = 0, bio = 0, rad = 0)
 	armorsoak = list(melee = 0, bullet = 10, laser = 0, energy = 5, bomb = 0, bio = 0, rad = 0)
 	siemens_coefficient = 0.7
@@ -137,7 +142,7 @@
 	name = "riot armor plate"
 	desc = "A thick armor plate with additional padding, providing good protection against low-velocity trauma. Attaches to a plate carrier."
 	icon_state = "armor_riot"
-	slowdown = 0.6
+	slowdown = 0.5
 	armor = list(melee = 70, bullet = 10, laser = 10, energy = 10, bomb = 0, bio = 0, rad = 0)
 	armorsoak = list(melee = 10, bullet = 0, laser = 0, energy = 5, bomb = 0, bio = 0, rad = 0)
 	siemens_coefficient = 0.7
@@ -145,8 +150,8 @@
 /obj/item/clothing/accessory/armor/armorplate/laserproof
 	name = "ablative armor plate"
 	desc = "A durasteel-scaled synthetic armor plate, providing good protection against lasers. Attaches to a plate carrier."
-	icon_state = "armor_medium"
-	slowdown = 0.6
+	icon_state = "armor_ablative"
+	slowdown = 0.5
 	armor = list(melee = 10, bullet = 10, laser = 70, energy = 50, bomb = 0, bio = 0, rad = 0)
 	armorsoak = list(melee = 0, bullet = 0, laser = 10, energy = 15, bomb = 0, bio = 0, rad = 0)
 	siemens_coefficient = 0.1
@@ -202,6 +207,12 @@
 /obj/item/clothing/accessory/armor/armguards/tan
 	desc = "A pair of tan arm pads reinforced with armor plating. Attaches to a plate carrier."
 	icon_state = "armguards_tan"
+
+/obj/item/clothing/accessory/armor/armguards/explorer
+	name = "explorer arm guards"
+	desc = "A pair of green arm pads reinforced with armor plating. Attaches to a plate carrier."
+	icon_state = "armguards_green"
+	armor = list(melee = 30, bullet = 20, laser = 20, energy = 20, bomb = 35, bio = 75, rad = 35)
 
 /obj/item/clothing/accessory/armor/armguards/merc
 	name = "heavy arm guards"
@@ -261,6 +272,12 @@
 /obj/item/clothing/accessory/armor/legguards/tan
 	desc = "A pair of armored leg pads in tan. Attaches to a plate carrier."
 	icon_state = "legguards_tan"
+
+/obj/item/clothing/accessory/armor/legguards/explorer
+	name = "explorer leg guards"
+	desc = "A pair of armored leg pads in green. Attaches to a plate carrier."
+	icon_state = "legguards_green"
+	armor = list(melee = 30, bullet = 20, laser = 20, energy = 20, bomb = 35, bio = 75, rad = 35)
 
 /obj/item/clothing/accessory/armor/legguards/merc
 	name = "heavy leg guards"
@@ -377,7 +394,7 @@
 // Helmet Covers
 /////////////////
 
-obj/item/clothing/accessory/armor/helmcover
+/obj/item/clothing/accessory/armor/helmcover
 	name = "helmet cover"
 	desc = "A fabric cover for armored helmets."
 	icon_override = 'icons/mob/ties.dmi'

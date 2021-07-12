@@ -10,7 +10,6 @@ var/global/list/map_sectors = list()
 /turf/unsimulated/map
 	icon = 'icons/turf/space.dmi'
 	icon_state = "map"
-	initialized = FALSE // TODO - Fix unsimulated turf initialization so this override is not necessary!
 
 /turf/unsimulated/map/edge
 	opacity = 1
@@ -92,7 +91,7 @@ var/list/moving_levels = list()
 //Proc to 'move' stars in spess
 //yes it looks ugly, but it should only fire when state actually change.
 //null direction stops movement
-proc/toggle_move_stars(zlevel, direction)
+/proc/toggle_move_stars(zlevel, direction)
 	if(!zlevel)
 		return
 

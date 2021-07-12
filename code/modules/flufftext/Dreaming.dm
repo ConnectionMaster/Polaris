@@ -18,7 +18,7 @@ var/list/dreams = list(
 	"unintelligible writings","a Fleet ship",
 	)
 
-mob/living/carbon/proc/dream()
+/mob/living/carbon/proc/dream()
 	dreaming = 1
 
 	spawn(0)
@@ -27,12 +27,12 @@ mob/living/carbon/proc/dream()
 			sleep(rand(40,70))
 			if(paralysis <= 0)
 				dreaming = 0
-				return 0
+				return
 		dreaming = 0
-		return 1
+		return
 
-mob/living/carbon/proc/handle_dreams()
+/mob/living/carbon/proc/handle_dreams()
 	if(client && !dreaming && prob(5))
 		dream()
 
-mob/living/carbon/var/dreaming = 0
+/mob/living/carbon/var/dreaming = 0

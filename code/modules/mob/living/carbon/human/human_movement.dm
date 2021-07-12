@@ -146,7 +146,7 @@
 			. += turf_move_cost
 
 	// Wind makes it easier or harder to move, depending on if you're with or against the wind.
-	if(T.outdoors && (T.z <= SSplanets.z_to_planet.len))
+	if((T.outdoors == OUTDOORS_YES) && (T.z <= SSplanets.z_to_planet.len))
 		var/datum/planet/P = SSplanets.z_to_planet[z]
 		if(P)
 			var/datum/weather_holder/WH = P.weather_holder
@@ -166,7 +166,7 @@
 		if(istype(back, /obj/item/weapon/tank/jetpack))
 			return back
 		else if(istype(rig))
-			for(var/obj/item/rig_module/maneuvering_jets.module in rig.installed_modules)
+			for(var/obj/item/rig_module/maneuvering_jets/module in rig.installed_modules)
 				return module.jets
 
 /mob/living/carbon/human/Process_Spacemove(var/check_drift = 0)

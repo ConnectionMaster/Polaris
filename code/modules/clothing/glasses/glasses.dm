@@ -31,8 +31,8 @@ BLIND     // can't see anything
 	pickup_sound = 'sound/items/pickup/accessory.ogg'
 
 	sprite_sheets = list(
-		"Teshari" = 'icons/mob/species/seromi/eyes.dmi',
-		"Vox" = 'icons/mob/species/vox/eyes.dmi'
+		SPECIES_TESHARI = 'icons/mob/species/teshari/eyes.dmi',
+		SPECIES_VOX = 'icons/mob/species/vox/eyes.dmi'
 		)
 
 /obj/item/clothing/glasses/update_clothing_icon()
@@ -342,7 +342,7 @@ BLIND     // can't see anything
 	icon_state = "welding-g"
 	item_state_slots = list(slot_r_hand_str = "welding-g", slot_l_hand_str = "welding-g")
 	action_button_name = "Flip Welding Goggles"
-	matter = list(DEFAULT_WALL_MATERIAL = 1500, "glass" = 1000)
+	matter = list(MAT_STEEL = 1500, "glass" = 1000)
 	item_flags = AIRTIGHT
 	var/up = 0
 	flash_protection = FLASH_PROTECTION_MAJOR
@@ -396,6 +396,13 @@ BLIND     // can't see anything
 	name = "white blindfold"
 	desc = "A white blindfold that covers the eyes, preventing sight."
 	icon_state = "blindfoldwhite"
+
+/obj/item/clothing/glasses/sunglasses/thinblindfold
+	name = "thin white blindfold"
+	desc = "A thin blindfold to help protect sensitive eyes while still allowing some sight"
+	icon_state = "blindfoldwhite"
+	flash_protection = FLASH_PROTECTION_MODERATE //not as thick, only offers some protection
+	tint = TINT_HEAVY
 
 /obj/item/clothing/glasses/sunglasses/blindfold/tape
 	name = "length of tape"
@@ -493,19 +500,19 @@ BLIND     // can't see anything
 	enables_planes = list(VIS_FULLBRIGHT, VIS_CLOAKED)
 	flash_protection = FLASH_PROTECTION_REDUCED
 
-	emp_act(severity)
-		if(istype(src.loc, /mob/living/carbon/human))
-			var/mob/living/carbon/human/M = src.loc
-			to_chat(M, "<font color='red'>The Optical Thermal Scanner overloads and blinds you!</font>")
-			if(M.glasses == src)
-				M.Blind(3)
-				M.eye_blurry = 5
-				// Don't cure being nearsighted
-				if(!(M.disabilities & NEARSIGHTED))
-					M.disabilities |= NEARSIGHTED
-					spawn(100)
-						M.disabilities &= ~NEARSIGHTED
-		..()
+/obj/item/clothing/glasses/thermal/emp_act(severity)
+	if(istype(src.loc, /mob/living/carbon/human))
+		var/mob/living/carbon/human/M = src.loc
+		to_chat(M, "<font color='red'>The Optical Thermal Scanner overloads and blinds you!</font>")
+		if(M.glasses == src)
+			M.Blind(3)
+			M.eye_blurry = 5
+			// Don't cure being nearsighted
+			if(!(M.disabilities & NEARSIGHTED))
+				M.disabilities |= NEARSIGHTED
+				spawn(100)
+					M.disabilities &= ~NEARSIGHTED
+	..()
 
 /obj/item/clothing/glasses/thermal/New()
 	..()

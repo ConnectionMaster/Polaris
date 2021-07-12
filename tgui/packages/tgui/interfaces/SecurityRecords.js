@@ -179,7 +179,7 @@ const SecurityRecordsViewGeneral = (_properties, context) => {
         <LabeledList>
           {general.fields.map((field, i) => (
             <LabeledList.Item key={i} label={field.field}>
-              <Box height="20px" display="inline-block">
+              <Box height="20px" inline preserveWhiteSpace>
                 {field.value}
               </Box>
               {!!field.edit && (
@@ -250,7 +250,8 @@ const SecurityRecordsViewSecurity = (_properties, context) => {
         {security.fields.map((field, i) => (
           <LabeledList.Item
             key={i}
-            label={field.field}>
+            label={field.field}
+            preserveWhiteSpace>
             {field.value}
             <Button
               icon="pen"
@@ -317,4 +318,3 @@ const SecurityRecordsNavigation = (_properties, context) => {
     </Tabs>
   );
 };
-

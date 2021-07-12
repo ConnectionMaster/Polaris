@@ -1,4 +1,4 @@
-client/script = {"<style>
+/client/script = {"<style>
 body					{font-family: Verdana, sans-serif;}
 
 h1, h2, h3, h4, h5, h6	{color: #0000ff;font-family: Georgia, Verdana, sans-serif;}
@@ -95,7 +95,7 @@ h1.alert, h2.alert		{color: #000000;}
 .akhani					{color: #AC398C;}
 .skrell					{color: #00B0B3;}
 .skrellfar				{color: #70FCFF;}
-.soghun					{color: #228B22;}
+.soghun					{color: #50BA6C;}
 .solcom					{color: #22228B;}
 .changeling				{color: #800080;}
 .vox					{color: #AA00AA;}

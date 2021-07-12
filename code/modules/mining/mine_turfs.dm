@@ -40,7 +40,7 @@ var/list/mining_overlay_cache = list()
 	var/datum/artifact_find/artifact_find
 	var/ignore_mapgen
 
-	var/ore_types = list(
+	var/static/list/ore_types = list(
 		"hematite" = /obj/item/weapon/ore/iron,
 		"uranium" = /obj/item/weapon/ore/uranium,
 		"gold" = /obj/item/weapon/ore/gold,
@@ -53,7 +53,14 @@ var/list/mining_overlay_cache = list()
 		"carbon" = /obj/item/weapon/ore/coal,
 		"verdantium" = /obj/item/weapon/ore/verdantium,
 		"marble" = /obj/item/weapon/ore/marble,
-		"lead" = /obj/item/weapon/ore/lead
+		"lead" = /obj/item/weapon/ore/lead,
+		"copper" = /obj/item/weapon/ore/copper,
+//		"tin" = /obj/item/weapon/ore/tin,
+		"bauxite" = /obj/item/weapon/ore/bauxite,
+//		"void opal" = /obj/item/weapon/ore/void_opal,
+//		"painite" = /obj/item/weapon/ore/painite,
+//		"quartz" = /obj/item/weapon/ore/quartz,
+		"rutile" = /obj/item/weapon/ore/rutile
 	)
 
 	has_resources = 1
@@ -65,6 +72,30 @@ var/list/mining_overlay_cache = list()
 	sand_icon_state = "sand-light"
 	rock_icon_state = "rock-light"
 	random_icon = 1
+
+/turf/simulated/mineral/alt
+	icon_state = "rock-alt"
+	rock_side_icon_state = "rock_side-alt"
+	sand_icon_state = "asteroid"
+	rock_icon_state = "rock-alt"
+
+/turf/simulated/mineral/icey
+	icon_state = "rock-icey"
+	rock_side_icon_state = "rock_side-icey"
+	sand_icon_state = "sand-icey" // to be replaced
+	rock_icon_state = "rock-icey"
+
+/turf/simulated/mineral/crystal
+	icon_state = "rock-crystal"
+	rock_side_icon_state = "rock_side-crystal"
+	sand_icon_state = "sand-icey" // to be replaced
+	rock_icon_state = "rock-crystal"
+
+/turf/simulated/mineral/crystal_shiny
+	icon_state = "rock-crystal-shiny"
+	rock_side_icon_state = "rock_side-crystal"
+	sand_icon_state = "sand-icey" // to be replaced
+	rock_icon_state = "rock-crystal-shiny"
 
 /turf/simulated/mineral/ignore_mapgen
 	ignore_mapgen = 1
@@ -79,19 +110,23 @@ var/list/mining_overlay_cache = list()
 	can_build_into_floor = TRUE
 
 //Alternative sand floor sprite.
-turf/simulated/mineral/floor/light
+/turf/simulated/mineral/floor/light
 	icon_state = "sand-light"
 	sand_icon_state = "sand-light"
 
-turf/simulated/mineral/floor/light_border
+/turf/simulated/mineral/floor/icey
+	icon_state = "sand-icey"
+	sand_icon_state = "sand-icey" // to be replaced
+
+/turf/simulated/mineral/floor/light_border
 	icon_state = "sand-light-border"
 	sand_icon_state = "sand-light-border"
 
-turf/simulated/mineral/floor/light_nub
+/turf/simulated/mineral/floor/light_nub
 	icon_state = "sand-light-nub"
 	sand_icon_state = "sand-light-nub"
 
-turf/simulated/mineral/floor/light_corner
+/turf/simulated/mineral/floor/light_corner
 	icon_state = "sand-light-corner"
 	sand_icon_state = "sand-light-corner"
 
@@ -643,12 +678,12 @@ turf/simulated/mineral/floor/light_corner
 
 	var/mineral_name
 	if(rare_ore)
-		mineral_name = pickweight(list("marble" = 5, "uranium" = 10, "platinum" = 10, "hematite" = 20, "carbon" = 20, "diamond" = 2, "gold" = 10, "silver" = 10, "phoron" = 20, "lead" = 5, "verdantium" = 1))
+		mineral_name = pickweight(list("marble" = 5,/* "quartz" = 15,*/ "copper" = 10, /*"tin" = 5,*/ "bauxite" = 5, "uranium" = 15, "platinum" = 20, "hematite" = 15, "rutile" = 20, "carbon" = 15, "diamond" = 3, "gold" = 15, "silver" = 15, "phoron" = 25, "lead" = 5,/* "void opal" = 1,*/ "verdantium" = 2/*, "painite" = 1*/))
 
 	else
-		mineral_name = pickweight(list("marble" = 3, "uranium" = 10, "platinum" = 10, "hematite" = 70, "carbon" = 70, "diamond" = 2, "gold" = 10, "silver" = 10, "phoron" = 20, "lead" = 2, "verdantium" = 1))
+		mineral_name = pickweight(list("marble" = 3,/* "quartz" = 10,*/ "copper" = 20, /*"tin" = 15,*/ "bauxite" = 15, "uranium" = 10, "platinum" = 10, "hematite" = 70, "rutile" = 15, "carbon" = 70, "diamond" = 2, "gold" = 10, "silver" = 10, "phoron" = 20, "lead" = 3,/* "void opal" = 1,*/ "verdantium" = 1/*, "painite" = 1*/))
 
-	if(mineral_name && (mineral_name in ore_data))
-		mineral = ore_data[mineral_name]
+	if(mineral_name && (mineral_name in GLOB.ore_data))
+		mineral = GLOB.ore_data[mineral_name]
 		UpdateMineral()
 	update_icon()

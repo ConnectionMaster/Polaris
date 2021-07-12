@@ -454,7 +454,7 @@
 		return
 
 	playsound(src, 'sound/machines/defib_charge.ogg', 50, 0)
-	audible_message("<span class='warning'>\The [src] lets out a steadily rising hum...</span>")
+	audible_message("<span class='warning'>\The [src] lets out a steadily rising hum...</span>", runemessage = "whines")
 
 	if(!do_after(user, chargetime, H))
 		return
@@ -503,8 +503,8 @@
 		return // Still no brain.
 
 	// If the brain'd `defib_timer` var gets below this number, brain damage will happen at a linear rate.
-	// This is measures in `Life()` ticks. E.g. 10 minute defib timer = 6000 world.time units = 3000 `Life()` ticks.
-	var/brain_damage_timer = ((config.defib_timer MINUTES) / 2) - ((config.defib_braindamage_timer MINUTES) / 2)
+	// This is measures in `Life()` ticks. E.g. 10 minute defib timer = 300 `Life()` ticks.				// Original math was VERY off. Life() tick occurs every ~2 seconds, not every 2 world.time ticks.
+	var/brain_damage_timer = ((config.defib_timer MINUTES) / 20) - ((config.defib_braindamage_timer MINUTES) / 20)
 
 	if(brain.defib_timer > brain_damage_timer)
 		return // They got revived before brain damage got a chance to set in.
@@ -521,7 +521,7 @@
 	H.setBrainLoss(brain_damage)
 
 /obj/item/weapon/shockpaddles/proc/make_announcement(var/message, var/msg_class)
-	audible_message("<b>\The [src]</b> [message]", "\The [src] vibrates slightly.")
+	audible_message("<b>\The [src]</b> [message]", "\The [src] vibrates slightly.", runemessage = "buzz")
 
 /obj/item/weapon/shockpaddles/emag_act(mob/user)
 	if(safety)

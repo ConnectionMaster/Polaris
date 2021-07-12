@@ -12,6 +12,7 @@
 	wait_if_pulled = 1
 	min_target_dist = 0
 
+	var/vocal = 1
 	var/amount = 10 // 1 for tile, 2 for lattice
 	var/maxAmount = 60
 	var/tilemake = 0 // When it reaches 100, bot makes a tile
@@ -29,28 +30,39 @@
 	else
 		icon_state = "floorbot[on]e"
 
-/mob/living/bot/floorbot/attack_hand(var/mob/user)
-	user.set_machine(src)
-	var/list/dat = list()
-	dat += "<TT><B>Automatic Station Floor Repairer v1.0</B></TT><BR><BR>"
-	dat += "Status: <A href='?src=\ref[src];operation=start'>[src.on ? "On" : "Off"]</A><BR>"
-	dat += "Maintenance panel is [open ? "opened" : "closed"]<BR>"
-	dat += "Tiles left: [amount]<BR>"
-	dat += "Behvaiour controls are [locked ? "locked" : "unlocked"]<BR>"
+/mob/living/bot/floorbot/tgui_interact(mob/user, datum/tgui/ui)
+	ui = SStgui.try_update_ui(user, src, ui)
+	if(!ui)
+		ui = new(user, src, "Floorbot", name)
+		ui.open()
+
+/mob/living/bot/floorbot/tgui_data(mob/user, datum/tgui/ui, datum/tgui_state/state)
+	var/list/data = ..()
+
+	data["on"] = on
+	data["open"] = open
+	data["locked"] = locked
+	
+	data["vocal"] = vocal
+	data["amount"] = amount
+
+	data["possible_bmode"] = list("NORTH", "EAST", "SOUTH", "WEST")
+
+	data["improvefloors"] = null
+	data["eattiles"] = null
+	data["maketiles"] = null
+	data["bmode"] = null
+
 	if(!locked || issilicon(user))
-		dat += "Improves floors: <A href='?src=\ref[src];operation=improve'>[improvefloors ? "Yes" : "No"]</A><BR>"
-		dat += "Finds tiles: <A href='?src=\ref[src];operation=tiles'>[eattiles ? "Yes" : "No"]</A><BR>"
-		dat += "Make singles pieces of metal into tiles when empty: <A href='?src=\ref[src];operation=make'>[maketiles ? "Yes" : "No"]</A><BR>"
-		var/bmode
-		if(targetdirection)
-			bmode = dir2text(targetdirection)
-		else
-			bmode = "Disabled"
-		dat += "<BR><BR>Bridge Mode : <A href='?src=\ref[src];operation=bridgemode'>[bmode]</A><BR>"
-	var/datum/browser/popup = new(user, "autorepair", "Repairbot v1.1 controls")
-	popup.set_content(jointext(dat,null))
-	popup.open()
-	return
+		data["improvefloors"] = improvefloors
+		data["eattiles"] = eattiles
+		data["maketiles"] = maketiles
+		data["bmode"] = dir2text(targetdirection)
+	
+	return data
+
+/mob/living/bot/floorbot/attack_hand(var/mob/user)
+	tgui_interact(user)
 
 /mob/living/bot/floorbot/emag_act(var/remaining_charges, var/mob/user)
 	. = ..()
@@ -61,38 +73,40 @@
 			playsound(src, 'sound/machines/buzzbeep.ogg', 50, 0)
 		return 1
 
-/mob/living/bot/floorbot/Topic(href, href_list)
+/mob/living/bot/floorbot/tgui_act(action, list/params, datum/tgui/ui, datum/tgui_state/state)
 	if(..())
-		return
-	usr.set_machine(src)
-	add_fingerprint(usr)
-	switch(href_list["operation"])
+		return TRUE
+	
+	add_fingerprint(src)
+
+	switch(action)
 		if("start")
-			if (on)
+			if(on)
 				turn_off()
 			else
 				turn_on()
+			. = TRUE
+	
+	if(locked && !issilicon(usr))
+		return
+
+	switch(action)
+		if("vocal")
+			vocal = !vocal
+			. = TRUE
 		if("improve")
 			improvefloors = !improvefloors
+			. = TRUE
 		if("tiles")
 			eattiles = !eattiles
+			. = TRUE
 		if("make")
 			maketiles = !maketiles
+			. = TRUE
 		if("bridgemode")
-			switch(targetdirection)
-				if(null)
-					targetdirection = 1
-				if(1)
-					targetdirection = 2
-				if(2)
-					targetdirection = 4
-				if(4)
-					targetdirection = 8
-				if(8)
-					targetdirection = null
-				else
-					targetdirection = null
-	attack_hand(usr)
+			targetdirection = text2dir(params["dir"])
+			. = TRUE
+
 
 /mob/living/bot/floorbot/handleRegular()
 	++tilemake
@@ -100,7 +114,7 @@
 		tilemake = 0
 		addTiles(1)
 
-	if(prob(1))
+	if(vocal && prob(1))
 		custom_emote(2, "makes an excited beeping sound!")
 		playsound(src, 'sound/machines/twobeep.ogg', 50, 0)
 
@@ -193,7 +207,7 @@
 
 	if(emagged && istype(A, /turf/simulated/floor))
 		var/turf/simulated/floor/F = A
-		busy = 1
+		busy = TRUE
 		update_icons()
 		if(F.flooring)
 			visible_message("<span class='warning'>\The [src] begins to tear the floor tile from the floor!</span>")
@@ -206,7 +220,7 @@
 				F.ReplaceWithLattice()
 				addTiles(1)
 		target = null
-		busy = 0
+		busy = FALSE
 		update_icons()
 	else if(istype(A, /turf/space) || istype(A, /turf/simulated/mineral/floor))
 		var/building = 2
@@ -214,7 +228,7 @@
 			building = 1
 		if(amount < building)
 			return
-		busy = 1
+		busy = TRUE
 		update_icons()
 		visible_message("<span class='notice'>\The [src] begins to repair the hole.</span>")
 		if(do_after(src, 50))
@@ -226,22 +240,22 @@
 					I = new /obj/item/stack/rods(src)
 				A.attackby(I, src)
 		target = null
-		busy = 0
+		busy = FALSE
 		update_icons()
 	else if(istype(A, /turf/simulated/floor))
 		var/turf/simulated/floor/F = A
 		if(F.broken || F.burnt)
-			busy = 1
+			busy = TRUE
 			update_icons()
 			visible_message("<span class='notice'>\The [src] begins to remove the broken floor.</span>")
 			if(do_after(src, 50, F))
 				if(F.broken || F.burnt)
 					F.make_plating()
 			target = null
-			busy = 0
+			busy = FALSE
 			update_icons()
 		else if(!F.flooring && amount)
-			busy = 1
+			busy = TRUE
 			update_icons()
 			visible_message("<span class='notice'>\The [src] begins to improve the floor.</span>")
 			if(do_after(src, 50))
@@ -249,12 +263,12 @@
 					F.set_flooring(get_flooring_data(floor_build_type))
 					addTiles(-1)
 			target = null
-			busy = 0
+			busy = FALSE
 			update_icons()
 	else if(istype(A, /obj/item/stack/tile/floor) && amount < maxAmount)
 		var/obj/item/stack/tile/floor/T = A
 		visible_message("<span class='notice'>\The [src] begins to collect tiles.</span>")
-		busy = 1
+		busy = TRUE
 		update_icons()
 		if(do_after(src, 20))
 			if(T)
@@ -262,18 +276,20 @@
 				T.use(eaten)
 				addTiles(eaten)
 		target = null
-		busy = 0
+		busy = FALSE
 		update_icons()
-	else if(istype(A, /obj/item/stack/material) && amount + 4 <= maxAmount)
+	else if(istype(A, /obj/item/stack/material))
 		var/obj/item/stack/material/M = A
 		if(M.get_material_name() == DEFAULT_WALL_MATERIAL)
 			visible_message("<span class='notice'>\The [src] begins to make tiles.</span>")
-			busy = 1
-			update_icons()
-			if(do_after(50))
-				if(M)
-					M.use(1)
-					addTiles(4)
+			while(amount + 4 <= maxAmount)
+				busy = TRUE
+				update_icons()
+				if(do_after(5 SECONDS))
+					if(M)
+						M.use(1)
+						addTiles(4)
+			busy = FALSE
 
 /mob/living/bot/floorbot/explode()
 	turn_off()

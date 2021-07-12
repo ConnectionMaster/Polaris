@@ -646,7 +646,8 @@
 			var/obj/mecha/M = loc
 			loc_temp =  M.return_temperature()
 		else if(istype(loc, /obj/machinery/atmospherics/unary/cryo_cell))
-			loc_temp = loc:air_contents.temperature
+			var/obj/machinery/atmospherics/unary/cryo_cell/cc = loc
+			loc_temp = cc.air_contents.temperature
 		else
 			loc_temp = environment.temperature
 
@@ -1028,7 +1029,7 @@
 					if(client || sleeping > 3)
 						AdjustSleeping(-1)
 						throw_alert("asleep", /obj/screen/alert/asleep)
-				if( prob(2) && health && !hal_crit )
+				if( prob(2) && health && !hal_crit && client )
 					spawn(0)
 						emote("snore")
 		//CONSCIOUS
@@ -1299,6 +1300,8 @@
 					var/obj/item/clothing/glasses/welding/O = glasses
 					if(!O.up)
 						found_welder = 1
+				if(istype(glasses, /obj/item/clothing/glasses/sunglasses/thinblindfold))
+					found_welder = 1
 				if(!found_welder && istype(head, /obj/item/clothing/head/welding))
 					var/obj/item/clothing/head/welding/O = head
 					if(!O.up)
@@ -1359,7 +1362,7 @@
 			see_in_dark = species.darksight
 			see_invisible = see_in_dark>2 ? SEE_INVISIBLE_LEVEL_ONE : see_invisible_default
 
-		var/tmp/glasses_processed = 0
+		var/glasses_processed = 0
 		var/obj/item/weapon/rig/rig = get_rig()
 		if(istype(rig) && rig.visor && !looking_elsewhere)
 			if(!rig.helmet || (head && rig.helmet == head))
@@ -1527,7 +1530,7 @@
 		custom_pain("[pick("It hurts so much", "You really need some painkillers", "Dear god, the pain")]!", 40)
 
 	if(shock_stage >= 30)
-		if(shock_stage == 30) emote("me",1,"is having trouble keeping their eyes open.")
+		if(shock_stage == 30) custom_emote(VISIBLE_MESSAGE, "is having trouble keeping their eyes open.")
 		eye_blurry = max(2, eye_blurry)
 		stuttering = max(stuttering, 5)
 
@@ -1535,7 +1538,7 @@
 		to_chat(src, "<span class='danger'>[pick("The pain is excruciating", "Please&#44; just end the pain", "Your whole body is going numb")]!</span>")
 
 	if (shock_stage >= 60)
-		if(shock_stage == 60) emote("me",1,"'s body becomes limp.")
+		if(shock_stage == 60) custom_emote(VISIBLE_MESSAGE, "'s body becomes limp.")
 		if (prob(2))
 			to_chat(src, "<span class='danger'>[pick("The pain is excruciating", "Please&#44; just end the pain", "Your whole body is going numb")]!</span>")
 			Weaken(20)
@@ -1551,7 +1554,7 @@
 			Paralyse(5)
 
 	if(shock_stage == 150)
-		emote("me",1,"can no longer stand, collapsing!")
+		custom_emote(VISIBLE_MESSAGE, "can no longer stand, collapsing!")
 		Weaken(20)
 
 	if(shock_stage >= 150)

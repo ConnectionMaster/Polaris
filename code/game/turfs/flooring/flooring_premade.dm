@@ -396,7 +396,7 @@
 //**** Here lives snow ****
 /turf/simulated/floor/snow
 	name = "snow"
-	icon = 'icons/turf/snow_new.dmi'
+	icon = 'icons/turf/outdoors.dmi'
 	icon_state = "snow"
 	initial_flooring = /decl/flooring/snow
 	var/list/crossed_dirs = list()
@@ -421,8 +421,6 @@
 	name = "snowy plating"
 	icon_state = "snowyplayingdrift"
 	initial_flooring = /decl/flooring/snow/plating/drift
-
-#define FOOTSTEP_SPRITE_AMT 2
 
 // TODO: Move foortprints to a datum-component signal so they can actually be applied to other turf types, like sand, or mud
 /turf/simulated/floor/snow/Entered(atom/A)

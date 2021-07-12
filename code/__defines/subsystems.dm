@@ -52,11 +52,13 @@ var/global/list/runlevel_flags = list(RUNLEVEL_LOBBY, RUNLEVEL_SETUP, RUNLEVEL_G
 // Subsystem init_order, from highest priority to lowest priority
 // Subsystems shutdown in the reverse of the order they initialize in
 // The numbers just define the ordering, they are meaningless otherwise.
+#define INIT_ORDER_WEBHOOKS		50
 #define INIT_ORDER_SQLITE		40
 #define INIT_ORDER_CHEMISTRY	35
 #define INIT_ORDER_SKYBOX		30
 #define INIT_ORDER_MAPPING		25
 #define INIT_ORDER_DECALS		20
+#define INIT_ORDER_PLANETS		18
 #define INIT_ORDER_JOB			17
 #define INIT_ORDER_ALARM		16 // Must initialize before atoms.
 #define INIT_ORDER_ATOMS		15
@@ -67,7 +69,6 @@ var/global/list/runlevel_flags = list(RUNLEVEL_LOBBY, RUNLEVEL_SETUP, RUNLEVEL_G
 #define INIT_ORDER_LIGHTING		0
 #define INIT_ORDER_AIR			-1
 #define INIT_ORDER_ASSETS		-3
-#define INIT_ORDER_PLANETS		-4
 #define INIT_ORDER_HOLOMAPS		-5
 #define INIT_ORDER_NIGHTSHIFT	-6
 #define INIT_ORDER_OVERLAY		-7
@@ -109,7 +110,7 @@ var/global/list/runlevel_flags = list(RUNLEVEL_LOBBY, RUNLEVEL_SETUP, RUNLEVEL_G
 // Macro defining the actual code applying our overlays lists to the BYOND overlays list. (I guess a macro for speed)
 // TODO - I don't really like the location of this macro define.  Consider it. ~Leshana
 #define COMPILE_OVERLAYS(A)\
-	if (TRUE) {\
+	do {\
 		var/list/oo = A.our_overlays;\
 		var/list/po = A.priority_overlays;\
 		if(LAZYLEN(po)){\
@@ -127,4 +128,4 @@ var/global/list/runlevel_flags = list(RUNLEVEL_LOBBY, RUNLEVEL_SETUP, RUNLEVEL_G
 			A.overlays.Cut();\
 		}\
 		A.flags &= ~OVERLAY_QUEUED;\
-	}
+	} while (FALSE)

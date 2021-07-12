@@ -18,6 +18,7 @@
 
 /atom/Click(var/location, var/control, var/params) // This is their reaction to being clicked on (standard proc)
 	if(src)
+		SEND_SIGNAL(src, COMSIG_CLICK, location, control, params, usr)
 		usr.ClickOn(src, params)
 
 /atom/DblClick(var/location, var/control, var/params)
@@ -355,5 +356,8 @@
 		var/list/P = params2list(params)
 		var/turf/T = screen_loc2turf(P["screen-loc"], get_turf(usr))
 		if(T)
+			if(modifiers["shift"])
+				usr.face_atom(T)
+				return 1
 			T.Click(location, control, params)
-	. = 1
+	return 1

@@ -42,7 +42,7 @@
 	name = "magnetic 'pin'"
 	addblends = null
 	desc = "Finally, a hair pin even a Morpheus chassis can use."
-	matter = list(DEFAULT_WALL_MATERIAL = 10)
+	matter = list(MAT_STEEL = 10)
 
 /obj/item/clothing/head/pin/flower
 	name = "red flower pin"
@@ -125,6 +125,11 @@
 	permeability_coefficient = 0.01
 	siemens_coefficient = 0.9
 	body_parts_covered = 0
+
+/obj/item/clothing/head/plaguedoctorhat/gold
+	name = "golden plague doctor's hat"
+	desc = "These were once used by plague doctors, allegedly. This one has gold accents."
+	icon_state = "plaguedoctor2"
 
 /obj/item/clothing/head/hasturhood
 	name = "hastur's hood"

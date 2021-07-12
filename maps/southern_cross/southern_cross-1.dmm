@@ -11025,7 +11025,8 @@
 	},
 /obj/machinery/door/airlock/maintenance_hatch{
 	name = "Telecoms Storage";
-	req_access = list(61)
+	req_access = list(61);
+	req_one_access = list(61)
 	},
 /turf/simulated/floor,
 /area/tcomm/tcomstorage)
@@ -30283,15 +30284,13 @@
 /turf/simulated/floor/tiled,
 /area/security/main)
 "bfr" = (
+/obj/machinery/disposal,
 /obj/structure/disposalpipe/trunk,
 /obj/effect/floor_decal/borderfloor{
 	dir = 6
 	},
 /obj/effect/floor_decal/corner/red/border{
 	dir = 6
-	},
-/obj/machinery/disposal/wall{
-	dir = 8
 	},
 /turf/simulated/floor/tiled,
 /area/security/main)
@@ -37648,6 +37647,9 @@
 /obj/item/device/radio/off,
 /obj/item/device/radio/off,
 /obj/effect/floor_decal/industrial/warning,
+/obj/item/stack/material/copper{
+	amount = 10
+	},
 /turf/simulated/floor/tiled/dark,
 /area/ai_monitored/storage/eva)
 "bsi" = (
@@ -45961,6 +45963,7 @@
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
 	dir = 6
 	},
+/mob/living/simple_mob/animal/passive/opossum/poppy,
 /turf/simulated/floor/tiled,
 /area/engineering/foyer)
 "bGL" = (
@@ -51550,6 +51553,9 @@
 /obj/effect/floor_decal/corner/purple/border{
 	dir = 1
 	},
+/obj/item/stack/material/copper{
+	amount = 10
+	},
 /turf/simulated/floor/tiled/white,
 /area/rnd/lab)
 "bRd" = (
@@ -51610,6 +51616,7 @@
 /turf/simulated/floor/tiled/white,
 /area/rnd/lab)
 "bRf" = (
+/obj/machinery/disposal,
 /obj/structure/disposalpipe/trunk{
 	dir = 4
 	},
@@ -51619,9 +51626,6 @@
 /obj/effect/floor_decal/corner/purple/border{
 	dir = 1
 	},
-/obj/machinery/disposal/wall,
-/obj/structure/table/standard,
-/obj/item/weapon/deskbell,
 /turf/simulated/floor/tiled/white,
 /area/rnd/lab)
 "bRg" = (
@@ -51727,6 +51731,9 @@
 	},
 /obj/effect/floor_decal/corner/purple/border{
 	dir = 1
+	},
+/obj/item/stack/material/copper{
+	amount = 10
 	},
 /turf/simulated/floor/tiled/white,
 /area/assembly/robotics)
@@ -57225,18 +57232,12 @@
 /turf/simulated/floor/plating,
 /area/assembly/robotics)
 "ccc" = (
+/obj/machinery/disposal,
 /obj/structure/disposalpipe/trunk{
 	dir = 8
 	},
 /obj/effect/floor_decal/borderfloorwhite,
 /obj/effect/floor_decal/corner/purple/border,
-/obj/machinery/disposal/wall{
-	dir = 1
-	},
-/obj/structure/table/standard,
-/obj/random/mech_toy{
-	pixel_y = 12
-	},
 /turf/simulated/floor/tiled/white,
 /area/assembly/robotics)
 "ccd" = (
@@ -66667,10 +66668,6 @@
 /turf/simulated/floor/tiled,
 /area/quartermaster/foyer)
 "cvi" = (
-/obj/structure/bed/chair,
-/obj/machinery/alarm{
-	pixel_y = 22
-	},
 /obj/effect/floor_decal/borderfloor/corner{
 	dir = 1
 	},
@@ -70397,6 +70394,10 @@
 /obj/effect/floor_decal/corner/brown/bordercorner2{
 	dir = 9
 	},
+/obj/machinery/alarm{
+	dir = 4;
+	pixel_x = -22
+	},
 /turf/simulated/floor/tiled,
 /area/quartermaster/foyer)
 "cCs" = (
@@ -72438,7 +72439,7 @@
 /area/quartermaster/lockerroom)
 "cFQ" = (
 /obj/structure/railing,
-/turf/simulated/open,
+/turf/simulated/floor/tiled,
 /area/quartermaster/lockerroom)
 "cFR" = (
 /obj/structure/railing,
@@ -72952,12 +72953,9 @@
 /obj/machinery/light/small{
 	dir = 1
 	},
-/obj/effect/floor_decal/borderfloor{
-	dir = 1
-	},
-/obj/effect/floor_decal/corner/brown/border{
-	dir = 1
-	},
+/obj/machinery/mech_recharger,
+/obj/effect/floor_decal/industrial/hatch/yellow,
+/obj/effect/landmark/robot_platform/cargo,
 /turf/simulated/floor/tiled/steel,
 /area/quartermaster/warehouse)
 "cHa" = (
@@ -72973,6 +72971,9 @@
 /obj/effect/floor_decal/corner/brown/border{
 	dir = 1
 	},
+/obj/structure/table/steel,
+/obj/item/device/floor_painter,
+/obj/item/weapon/weldingtool,
 /turf/simulated/floor/tiled,
 /area/quartermaster/warehouse)
 "cHb" = (
@@ -78825,7 +78826,8 @@
 	icon_state = "4-8"
 	},
 /obj/machinery/door/airlock/glass_medical{
-	name = "Patient Ward"
+	name = "Patient Ward";
+	req_one_access = list()
 	},
 /turf/simulated/floor/tiled/steel_grid,
 /area/medical/patient_wing)
@@ -82010,7 +82012,8 @@
 "cWF" = (
 /obj/machinery/door/firedoor/border_only,
 /obj/machinery/door/airlock/glass_medical{
-	name = "Patient Ward"
+	name = "Patient Ward";
+	req_one_access = list()
 	},
 /turf/simulated/floor/tiled/steel_grid,
 /area/medical/patient_wing)
@@ -83405,7 +83408,8 @@
 	icon_state = "1-2"
 	},
 /obj/machinery/door/airlock/medical{
-	name = "Patient Room A"
+	name = "Patient Room A";
+	req_one_access = list()
 	},
 /turf/simulated/floor/tiled/steel_grid,
 /area/medical/patient_a)
@@ -83429,7 +83433,8 @@
 	icon_state = "1-2"
 	},
 /obj/machinery/door/airlock/medical{
-	name = "Patient Room B"
+	name = "Patient Room B";
+	req_one_access = list()
 	},
 /turf/simulated/floor/tiled/steel_grid,
 /area/medical/patient_b)
@@ -86947,9 +86952,9 @@
 /turf/simulated/floor/plating,
 /area/maintenance/bar)
 "deS" = (
-/obj/machinery/smartfridge,
 /obj/structure/disposalpipe/segment,
-/turf/simulated/wall/r_wall,
+/obj/machinery/smartfridge/produce/persistent,
+/turf/simulated/floor/plating,
 /area/hydroponics)
 "deT" = (
 /turf/simulated/wall,
@@ -96096,18 +96101,15 @@
 /area/hallway/secondary/entry/D2)
 "dxl" = (
 /obj/structure/table/steel_reinforced,
-/obj/item/stack/material/plasteel{
-	amount = 15
-	},
-/obj/item/stack/material/plasteel{
-	amount = 15
-	},
 /obj/item/stack/material/plastic{
 	amount = 50
 	},
 /obj/item/device/radio/intercom{
 	name = "Station Intercom (General)";
 	pixel_y = -21
+	},
+/obj/item/stack/material/copper{
+	amount = 20
 	},
 /turf/simulated/floor/tiled/dark,
 /area/engineering/workshop)
@@ -97174,6 +97176,12 @@
 	},
 /obj/item/stack/material/steel{
 	amount = 50
+	},
+/obj/item/stack/material/plasteel{
+	amount = 15
+	},
+/obj/item/stack/material/plasteel{
+	amount = 15
 	},
 /turf/simulated/floor/tiled/dark,
 /area/engineering/workshop)
@@ -114171,6 +114179,24 @@
 /obj/machinery/computer/ship/sensors,
 /turf/simulated/floor/tiled/dark,
 /area/hallway/primary/seconddeck/ascenter)
+"eAB" = (
+/obj/structure/railing,
+/turf/simulated/floor/tiled,
+/area/hallway/primary/seconddeck/aft)
+"ioU" = (
+/obj/structure/railing{
+	dir = 4
+	},
+/turf/simulated/floor/tiled,
+/area/hallway/primary/thirddeck/central)
+"oJY" = (
+/obj/structure/railing,
+/turf/simulated/floor/tiled,
+/area/hallway/secondary/eva_hallway)
+"pel" = (
+/obj/structure/railing,
+/turf/simulated/floor/tiled,
+/area/rnd/research)
 "twa" = (
 /obj/effect/floor_decal/industrial/hatch/yellow,
 /obj/machinery/door/airlock/glass_external{
@@ -114188,6 +114214,16 @@
 /obj/effect/landmark/engine_loader,
 /turf/space,
 /area/space)
+"vTW" = (
+/obj/structure/railing{
+	dir = 4
+	},
+/turf/simulated/floor/tiled,
+/area/hallway/primary/seconddeck/stairwell)
+"xjf" = (
+/obj/machinery/smartfridge/sheets/persistent,
+/turf/simulated/floor/plating,
+/area/quartermaster/foyer)
 
 (1,1,1) = {"
 aaa
@@ -201960,7 +201996,7 @@ cmS
 chE
 cpX
 crX
-ctL
+xjf
 cvi
 cxl
 cxl
@@ -211214,7 +211250,7 @@ cqx
 cso
 cuc
 cvE
-cxE
+vTW
 cxE
 cqx
 dVz
@@ -211499,7 +211535,7 @@ ddu
 cYq
 deu
 ddA
-dfg
+eAB
 dfJ
 dgh
 dia
@@ -213747,7 +213783,7 @@ ebo
 bkq
 bkq
 bqr
-bri
+oJY
 btP
 buT
 bvY
@@ -223270,7 +223306,7 @@ bEn
 eby
 ebD
 bBr
-ebK
+pel
 bMb
 bOc
 bPA
@@ -277265,7 +277301,7 @@ dML
 dVB
 dNE
 dOd
-dOd
+ioU
 dPi
 dPA
 dQc

@@ -5,7 +5,7 @@
 	icon_state = "flashlight"
 	w_class = ITEMSIZE_SMALL
 	slot_flags = SLOT_BELT
-	matter = list(DEFAULT_WALL_MATERIAL = 50,"glass" = 20)
+	matter = list(MAT_STEEL = 50,"glass" = 20)
 	action_button_name = "Toggle Flashlight"
 	var/on = 0
 	var/brightness_on = 4 //luminosity when on
@@ -275,7 +275,7 @@
 	slot_flags = SLOT_BELT
 	w_class = ITEMSIZE_SMALL
 	attack_verb = list ("smacked", "thwacked", "thunked")
-	matter = list(DEFAULT_WALL_MATERIAL = 200,"glass" = 50)
+	matter = list(MAT_STEEL = 200,"glass" = 50)
 	hitsound = "swing_hit"
 
 /obj/item/device/flashlight/drone
@@ -294,7 +294,7 @@
 	icon_state = "lamp"
 	force = 10
 	center_of_mass = list("x" = 13,"y" = 11)
-	brightness_on = 10	//TFF 27/11/19 - post refactor fix for intensity levels.
+	brightness_on = 10
 	w_class = ITEMSIZE_LARGE
 	power_use = 0
 	on = 1

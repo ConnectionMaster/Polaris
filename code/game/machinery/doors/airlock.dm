@@ -821,14 +821,14 @@ About the new airlock wires panel:
 
 /obj/machinery/door/airlock/tgui_data(mob/user)
 	var/list/data = list()
-	
+
 	var/list/power = list()
 	power["main"] = main_power_lost_until > 0 ? 0 : 2
 	power["main_timeleft"] = round(main_power_lost_until > 0 ? max(main_power_lost_until - world.time,	0) / 10 : main_power_lost_until, 1)
 	power["backup"] = backup_power_lost_until > 0 ? 0 : 2
 	power["backup_timeleft"] = round(backup_power_lost_until > 0 ? max(backup_power_lost_until - world.time, 0) / 10 : backup_power_lost_until, 1)
 	data["power"] = power
-	
+
 	data["shock"] = (electrified_until == 0) ? 2 : 0
 	data["shock_timeleft"] = round(electrified_until > 0 ? max(electrified_until - world.time, 	0) / 10 : electrified_until, 1)
 	data["id_scanner"] = !aiDisabledIdScanner
@@ -1388,10 +1388,10 @@ About the new airlock wires panel:
 		//update the door's access to match the electronics'
 		secured_wires = electronics.secure
 		if(electronics.one_access)
-			req_access.Cut()
+			LAZYCLEARLIST(req_access)
 			req_one_access = src.electronics.conf_access
 		else
-			req_one_access.Cut()
+			LAZYCLEARLIST(req_one_access)
 			req_access = src.electronics.conf_access
 
 		//get the name from the assembly
@@ -1437,12 +1437,10 @@ About the new airlock wires panel:
 		src.electronics = new/obj/item/weapon/airlock_electronics( src.loc )
 
 	//update the electronics to match the door's access
-	if(!src.req_access)
-		src.check_access()
-	if(src.req_access.len)
-		electronics.conf_access = src.req_access
-	else if (src.req_one_access.len)
-		electronics.conf_access = src.req_one_access
+	if(LAZYLEN(req_access))
+		electronics.conf_access = req_access
+	else if (LAZYLEN(req_one_access))
+		electronics.conf_access = req_one_access
 		electronics.one_access = 1
 
 /obj/machinery/door/airlock/emp_act(var/severity)

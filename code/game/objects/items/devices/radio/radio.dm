@@ -58,7 +58,7 @@ var/global/list/default_medbay_channels = list(
 	var/bs_tx_preload_id
 	var/bs_rx_preload_id
 
-	matter = list("glass" = 25,DEFAULT_WALL_MATERIAL = 75)
+	matter = list("glass" = 25,MAT_STEEL = 75)
 	var/const/FREQ_LISTENING = 1
 	var/list/internal_channels
 
@@ -148,7 +148,7 @@ var/global/list/default_medbay_channels = list(
 
 	return tgui_interact(user)
 
-/obj/item/device/radio/ui_interact(mob/user, ui_key, datum/nanoui/ui, force_open, datum/nano_ui/master_ui, datum/topic_state/state)
+/obj/item/device/radio/ui_interact(mob/user, ui_key, datum/nanoui/ui, force_open, datum/nanoui/master_ui, datum/topic_state/state)
 	log_runtime(EXCEPTION("Warning: [user] attempted to call ui_interact on radio [src] [type]. This is deprecated. Please update the caller to tgui_interact."))
 
 /obj/item/device/radio/Topic(href, href_list)
@@ -302,7 +302,8 @@ var/global/list/default_medbay_channels = list(
 		playsound(src, "button", 10)
 
 GLOBAL_DATUM(autospeaker, /mob/living/silicon/ai/announcer)
-/obj/item/device/radio/proc/autosay(var/message, var/from, var/channel, var/list/zlevels) //BS12 EDIT
+
+/obj/item/device/radio/proc/autosay(var/message, var/from, var/channel, var/list/zlevels)
 	if(!GLOB.autospeaker)
 		return
 	var/datum/radio_frequency/connection = null
@@ -313,7 +314,7 @@ GLOBAL_DATUM(autospeaker, /mob/living/silicon/ai/announcer)
 	else
 		connection = radio_connection
 		channel = null
-	if (!istype(connection))
+	if(!istype(connection))
 		return
 
 	if(!LAZYLEN(zlevels))
@@ -512,7 +513,7 @@ GLOBAL_DATUM(autospeaker, /mob/living/silicon/ai/announcer)
 		else if(adhoc_fallback) //Less huzzah, we have to fallback
 			to_chat(loc, "<span class='warning'>\The [src] pings as it falls back to local radio transmission.</span>")
 			subspace_transmission = FALSE
-		
+
 		else //Oh well
 			return FALSE
 
@@ -536,7 +537,7 @@ GLOBAL_DATUM(autospeaker, /mob/living/silicon/ai/announcer)
 	for(var/obj/machinery/telecomms/receiver/R in telecomms_list)
 		R.receive_signal(signal)
 
-		if(signal.data["done"] && pos_z in signal.data["level"])
+		if(signal.data["done"] && (pos_z in signal.data["level"]))
 			if(adhoc_fallback)
 				to_chat(loc, "<span class='notice'>\The [src] pings as it reestablishes subspace communications.</span>")
 				subspace_transmission = TRUE
@@ -599,7 +600,7 @@ GLOBAL_DATUM(autospeaker, /mob/living/silicon/ai/announcer)
 
 /obj/item/device/radio/examine(mob/user)
 	. = ..()
-	
+
 	if((in_range(src, user) || loc == user))
 		if(b_stat)
 			. += "<span class='notice'>\The [src] can be attached and modified!</span>"

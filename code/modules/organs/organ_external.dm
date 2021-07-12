@@ -236,6 +236,7 @@
 		owner.organs |= src
 		for(var/obj/item/organ/organ in src)
 			organ.replaced(owner,src)
+		owner.refresh_modular_limb_verbs()
 
 	if(parent_organ)
 		parent = owner.organs_by_name[src.parent_organ]
@@ -562,7 +563,7 @@ This function completely restores a damaged organ to perfect condition.
 //external organs handle brokenness a bit differently when it comes to damage. Instead brute_dam is checked inside process()
 //this also ensures that an external organ cannot be "broken" without broken_description being set.
 /obj/item/organ/external/is_broken()
-	return ((status & ORGAN_CUT_AWAY) || (status & ORGAN_BROKEN) && (!splinted || (splinted && splinted in src.contents && prob(30))))
+	return ((status & ORGAN_CUT_AWAY) || (status & ORGAN_BROKEN) && (!splinted || (splinted && (splinted in src.contents) && prob(30))))
 
 //Determines if we even need to process this organ.
 /obj/item/organ/external/proc/need_process()
@@ -964,12 +965,12 @@ Note that amputating the affected organ does in fact remove the infection from t
 		holder = owner
 	if(!holder)
 		return
-	if (holder.handcuffed && body_part in list(ARM_LEFT, ARM_RIGHT, HAND_LEFT, HAND_RIGHT))
+	if (holder.handcuffed && (body_part in list(ARM_LEFT, ARM_RIGHT, HAND_LEFT, HAND_RIGHT)))
 		holder.visible_message(\
 			"\The [holder.handcuffed.name] falls off of [holder.name].",\
 			"\The [holder.handcuffed.name] falls off you.")
 		holder.drop_from_inventory(holder.handcuffed)
-	if (holder.legcuffed && body_part in list(FOOT_LEFT, FOOT_RIGHT, LEG_LEFT, LEG_RIGHT))
+	if (holder.legcuffed && (body_part in list(FOOT_LEFT, FOOT_RIGHT, LEG_LEFT, LEG_RIGHT)))
 		holder.visible_message(\
 			"\The [holder.legcuffed.name] falls off of [holder.name].",\
 			"\The [holder.legcuffed.name] falls off you.")
@@ -1112,6 +1113,8 @@ Note that amputating the affected organ does in fact remove the infection from t
 			if(R.lifelike)
 				robotic = ORGAN_LIFELIKE
 				name = "[initial(name)]"
+			else if(R.modular_bodyparts == MODULAR_BODYPART_PROSTHETIC)
+				name = "prosthetic [initial(name)]"
 			else
 				name = "robotic [initial(name)]"
 			desc = "[R.desc] It looks like it was produced by [R.company]."
@@ -1142,7 +1145,7 @@ Note that amputating the affected organ does in fact remove the infection from t
 
 		while(null in owner.internal_organs)
 			owner.internal_organs -= null
-
+		owner.refresh_modular_limb_verbs()
 	return 1
 
 /obj/item/organ/external/proc/mutate()
@@ -1243,6 +1246,7 @@ Note that amputating the affected organ does in fact remove the infection from t
 			qdel(spark_system)
 		qdel(src)
 
+	victim.refresh_modular_limb_verbs()
 	victim.update_icons_body()
 
 /obj/item/organ/external/proc/disfigure(var/type = "brute")

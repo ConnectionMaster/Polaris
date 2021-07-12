@@ -15,7 +15,7 @@
 	var/concealed_holster = 0
 	var/mob/living/carbon/human/wearer = null 	// To check if the wearer changes, so species spritesheets change properly.
 	var/list/on_rolled = list()					// Used when jumpsuit sleevels are rolled ("rolled" entry) or it's rolled down ("down"). Set to "none" to hide in those states.
-	sprite_sheets = list(SPECIES_TESHARI = 'icons/mob/species/seromi/ties.dmi') //Teshari can into webbing, too!
+	sprite_sheets = list(SPECIES_TESHARI = 'icons/mob/species/teshari/ties.dmi') //Teshari can into webbing, too!
 	drop_sound = 'sound/items/drop/accessory.ogg'
 	pickup_sound = 'sound/items/pickup/accessory.ogg'
 
@@ -39,7 +39,7 @@
 
 /obj/item/clothing/accessory/proc/get_mob_overlay()
 	if(!istype(loc,/obj/item/clothing/))	//don't need special handling if it's worn as normal item.
-		return ..()
+		return
 	var/tmp_icon_state = "[overlay_state? "[overlay_state]" : "[icon_state]"]"
 	if(ishuman(has_suit.loc))
 		wearer = has_suit.loc
@@ -378,7 +378,7 @@
 /obj/item/clothing/accessory/bracelet/material/New(var/newloc, var/new_material)
 	..(newloc)
 	if(!new_material)
-		new_material = DEFAULT_WALL_MATERIAL
+		new_material = MAT_STEEL
 	material = get_material_by_name(new_material)
 	if(!istype(material))
 		qdel(src)

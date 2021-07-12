@@ -1,9 +1,8 @@
-/obj/machinery/computer/arcade/
+/obj/machinery/computer/arcade
 	name = "random arcade"
 	desc = "random arcade machine"
-	icon_state = "arcade"
+	icon_state = "arcade1"
 	icon_keyboard = null
-	icon_screen = "invaders"
 	clicksound = null	//Gets too spammy and makes no sense for arcade to have the console keyboard noise anyway
 	var/list/prizes = list(	/obj/item/weapon/storage/box/snappops					= 2,
 							/obj/item/toy/blink										= 2,
@@ -24,28 +23,30 @@
 							/obj/item/clothing/head/cowboy_hat/small				= 2,
 							/obj/item/toy/stickhorse								= 2
 							)
+	var/list/special_prizes = list() // Holds instanced objects, intended for admins to shove surprises inside or something.
 
-/obj/machinery/computer/arcade/New()
-	..()
+/obj/machinery/computer/arcade/Initialize()
+	. = ..()
 	// If it's a generic arcade machine, pick a random arcade
 	// circuit board for it and make the new machine
 	if(!circuit)
 		var/choice = pick(subtypesof(/obj/item/weapon/circuitboard/arcade) - /obj/item/weapon/circuitboard/arcade/clawmachine)
 		var/obj/item/weapon/circuitboard/CB = new choice()
 		new CB.build_path(loc, CB)
-		qdel(src)
+		return INITIALIZE_HINT_QDEL
 
 /obj/machinery/computer/arcade/proc/prizevend()
-	if(!(contents-circuit).len)
+	if(LAZYLEN(special_prizes)) // Downstream wanted the 'win things inside contents sans circuitboard' feature kept.
+		var/atom/movable/AM = pick_n_take(special_prizes)
+		AM.forceMove(get_turf(src))
+		special_prizes -= AM
+	
+	else if(LAZYLEN(prizes))
 		var/prizeselect = pickweight(prizes)
 		new prizeselect(src.loc)
 
 		if(istype(prizeselect, /obj/item/clothing/suit/syndicatefake)) //Helmet is part of the suit
 			new	/obj/item/clothing/head/syndicatefake(src.loc)
-
-	else
-		var/atom/movable/prize = pick(contents-circuit)
-		prize.loc = src.loc
 
 /obj/machinery/computer/arcade/attack_ai(mob/user as mob)
 	return attack_hand(user)
@@ -77,9 +78,10 @@
 ///////////////////
 
 /obj/machinery/computer/arcade/battle
-	name = "arcade machine"
-	desc = "Does not support Pinball."
-	icon_state = "arcade"
+	name = "Battler"
+	desc = "Fight through what space has to offer!"
+	icon_state = "arcade2"
+	icon_screen = "battler"
 	circuit = /obj/item/weapon/circuitboard/arcade/battle
 	var/enemy_name = "Space Villian"
 	var/temp = "Winners don't use space drugs" //Temporary message, for attack messages, etc
@@ -313,7 +315,8 @@
 /obj/machinery/computer/arcade/orion_trail
 	name = "The Orion Trail"
 	desc = "Learn how our ancestors got to Orion, and have fun in the process!"
-	icon_state = "arcade"
+	icon_state = "arcade1"
+	icon_screen = "orion"
 	circuit = /obj/item/weapon/circuitboard/arcade/orion_trail
 	var/busy = 0 //prevent clickspam that allowed people to ~speedrun~ the game.
 	var/engine = 0
@@ -519,9 +522,9 @@
 						if(electronics)
 							sleep(10)
 							if(oldfuel > fuel && oldfood > food)
-								src.audible_message("\The [src] lets out a somehow reassuring chime.")
+								src.audible_message("\The [src] lets out a somehow reassuring chime.", runemessage = "reassuring chime")
 							else if(oldfuel < fuel || oldfood < food)
-								src.audible_message("\The [src] lets out a somehow ominous chime.")
+								src.audible_message("\The [src] lets out a somehow ominous chime.", runemessage = "ominous chime")
 							food = oldfood
 							fuel = oldfuel
 
@@ -1322,3 +1325,17 @@
 		gameStatus = "CLAWMACHINE_NEW"
 		emagged = 1
 		return 1
+		
+/obj/machinery/computer/arcade/attackby(obj/item/O, mob/user, params)
+	if(istype(O, /obj/item/stack/arcadeticket))
+		var/obj/item/stack/arcadeticket/T = O
+		var/amount = T.get_amount()
+		if(amount <2)
+			to_chat(user, "<span class='warning'>You need 2 tickets to claim a prize!</span>")
+			return
+		prizevend(user)
+		T.pay_tickets()
+		T.update_icon()
+		O = T
+		to_chat(user, "<span class='notice'>You turn in 2 tickets to the [src] and claim a prize!</span>")
+		return

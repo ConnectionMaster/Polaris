@@ -17,10 +17,12 @@
 	w_class = ITEMSIZE_SMALL
 
 	//Cost to make in the autolathe
-	matter = list(DEFAULT_WALL_MATERIAL = 70, "glass" = 30)
+	matter = list(MAT_STEEL = 70, "glass" = 30)
 
 	//R&D tech level
 	origin_tech = list(TECH_ENGINEERING = 1)
+	
+	tool_qualities = list(TOOL_WELDER)
 
 	//Welding tool specific stuff
 	var/welding = 0 	//Whether or not the welding tool is off(0), on(1) or currently welding(2)
@@ -359,7 +361,7 @@
 	icon_state = "indwelder"
 	max_fuel = 40
 	origin_tech = list(TECH_ENGINEERING = 2, TECH_PHORON = 2)
-	matter = list(DEFAULT_WALL_MATERIAL = 70, "glass" = 60)
+	matter = list(MAT_STEEL = 70, "glass" = 60)
 
 /obj/item/weapon/weldingtool/largetank/cyborg
 	name = "integrated welding tool"
@@ -373,7 +375,7 @@
 	max_fuel = 80
 	w_class = ITEMSIZE_NORMAL
 	origin_tech = list(TECH_ENGINEERING = 3)
-	matter = list(DEFAULT_WALL_MATERIAL = 70, "glass" = 120)
+	matter = list(MAT_STEEL = 70, "glass" = 120)
 
 /obj/item/weapon/weldingtool/mini
 	name = "emergency welding tool"
@@ -435,7 +437,7 @@
 	max_fuel = 40
 	w_class = ITEMSIZE_NORMAL
 	origin_tech = list(TECH_ENGINEERING = 4, TECH_PHORON = 3)
-	matter = list(DEFAULT_WALL_MATERIAL = 70, "glass" = 120)
+	matter = list(MAT_STEEL = 70, "glass" = 120)
 	toolspeed = 0.5
 	change_icons = 0
 	flame_intensity = 3
@@ -454,7 +456,6 @@
 	icon_state = "hybwelder"
 	max_fuel = 80 //more max fuel is better! Even if it doesn't actually use fuel.
 	eye_safety_modifier = -2	// Brighter than the sun. Literally, you can look at the sun with a welding mask of proper grade, this will burn through that.
-	slowdown = 0.1
 	toolspeed = 0.25
 	w_class = ITEMSIZE_NORMAL
 	flame_intensity = 5
@@ -665,7 +666,7 @@
 	always_process = TRUE
 
 /obj/item/weapon/weldingtool/electric/mounted/exosuit/Initialize()
-	..()
+	. = ..()
 
 	if(istype(loc, /obj/item/mecha_parts/mecha_equipment))
 		equip_mount = loc

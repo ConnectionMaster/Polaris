@@ -63,7 +63,7 @@ var/global/list/damage_icon_parts = list() //see UpdateDamageIcon()
 #define MUTATIONS_LAYER			1		//Mutations like fat, and lasereyes
 #define SKIN_LAYER				2		//Skin things added by a call on species
 #define BLOOD_LAYER				3		//Bloodied hands/feet/anything else
-#define DAMAGE_LAYER			4		//Injury overlay sprites like open wounds
+#define MOB_DAM_LAYER			4		//Injury overlay sprites like open wounds
 #define SURGERY_LAYER			5		//Overlays for open surgical sites
 #define UNDERWEAR_LAYER  		6		//Underwear/bras/etc
 #define SHOES_LAYER_ALT			7		//Shoe-slot item (when set to be under uniform via verb)
@@ -91,7 +91,7 @@ var/global/list/damage_icon_parts = list() //see UpdateDamageIcon()
 #define TAIL_LAYER_ALT			29		//Modified tail-sprite layer. Tend to be larger.
 #define MODIFIER_EFFECTS_LAYER	30		//Effects drawn by modifiers
 #define FIRE_LAYER				31		//'Mob on fire' overlay layer
-#define WATER_LAYER				32		//'Mob submerged' overlay layer
+#define MOB_WATER_LAYER			32		//'Mob submerged' overlay layer
 #define TARGETED_LAYER			33		//'Aimed at' overlay layer
 #define TOTAL_LAYERS			33//<---- KEEP THIS UPDATED, should always equal the highest number here, used to initialize a list.
 //////////////////////////////////
@@ -112,15 +112,6 @@ var/global/list/damage_icon_parts = list() //see UpdateDamageIcon()
 
 	//Do any species specific layering updates, such as when hiding.
 	update_icon_special()
-
-/mob/living/carbon/human/update_icons_layers()
-	crash_with("CANARY: Old human update_icons_layers was called.")
-
-/mob/living/carbon/human/update_icons_all()
-	crash_with("CANARY: Old human update_icons_all was called.")
-
-/mob/living/carbon/human/update_icons_huds()
-	crash_with("CANARY: Old human update_icons_huds was called.")
 
 /mob/living/carbon/human/update_transform()
 	// First, get the correct size.
@@ -145,7 +136,11 @@ var/global/list/damage_icon_parts = list() //see UpdateDamageIcon()
 		anim_time = 1 //Thud
 
 	if(lying && !species.prone_icon) //Only rotate them if we're not drawing a specific icon for being prone.
-		M.Turn(90)
+		var/randn = rand(1, 2)
+		if(randn <= 1) // randomly choose a rotation
+			M.Turn(-90)
+		else
+			M.Turn(90)
 		M.Scale(desired_scale_x, desired_scale_y)
 		M.Translate(1,-6)
 		layer = MOB_LAYER -0.01 // Fix for a byond bug where turf entry order no longer matters
@@ -163,7 +158,7 @@ var/global/list/damage_icon_parts = list() //see UpdateDamageIcon()
 	if(QDESTROYING(src))
 		return
 
-	remove_layer(DAMAGE_LAYER)
+	remove_layer(MOB_DAM_LAYER)
 
 	// first check whether something actually changed about damage appearance
 	var/damage_appearance = ""
@@ -179,7 +174,7 @@ var/global/list/damage_icon_parts = list() //see UpdateDamageIcon()
 
 	previous_damage_appearance = damage_appearance
 
-	var/image/standing_image = image(icon = species.damage_overlays, icon_state = "00", layer = BODY_LAYER+DAMAGE_LAYER)
+	var/image/standing_image = image(icon = species.damage_overlays, icon_state = "00", layer = BODY_LAYER+MOB_DAM_LAYER)
 
 	// blend the individual damage states with our icons
 	for(var/obj/item/organ/external/O in organs)
@@ -200,8 +195,8 @@ var/global/list/damage_icon_parts = list() //see UpdateDamageIcon()
 
 		standing_image.overlays += DI
 
-	overlays_standing[DAMAGE_LAYER]	= standing_image
-	apply_layer(DAMAGE_LAYER)
+	overlays_standing[MOB_DAM_LAYER]	= standing_image
+	apply_layer(MOB_DAM_LAYER)
 
 //BASE MOB SPRITE
 /mob/living/carbon/human/update_icons_body()
@@ -238,7 +233,8 @@ var/global/list/damage_icon_parts = list() //see UpdateDamageIcon()
 		icon_key += "[r_eyes], [g_eyes], [b_eyes]"
 	var/obj/item/organ/external/head/head = organs_by_name[BP_HEAD]
 	if(head)
-		icon_key += "[head.eye_icon]"
+		if(!istype(head, /obj/item/organ/external/stump))
+			icon_key += "[head.eye_icon]"
 	for(var/organ_tag in species.has_limbs)
 		var/obj/item/organ/external/part = organs_by_name[organ_tag]
 		if(isnull(part) || part.is_stump())
@@ -275,6 +271,9 @@ var/global/list/damage_icon_parts = list() //see UpdateDamageIcon()
 			if(part.transparent)
 				icon_key += "_t"
 
+			if(istype(tail_style, /datum/sprite_accessory/tail/taur))
+				icon_key += tail_style.clip_mask_state
+
 	icon_key = "[icon_key][husk ? 1 : 0][fat ? 1 : 0][hulk ? 1 : 0][skeleton ? 1 : 0]"
 	var/icon/base_icon
 	if(human_icon_cache[icon_key])
@@ -284,10 +283,26 @@ var/global/list/damage_icon_parts = list() //see UpdateDamageIcon()
 		var/obj/item/organ/external/chest = get_organ(BP_TORSO)
 		base_icon = chest.get_icon()
 
+		var/icon/Cutter = null
+
+		if(istype(tail_style, /datum/sprite_accessory/tail/taur))	// Tail icon 'cookie cutters' are filled in where icons are preserved. We need to invert that.
+			Cutter = new(icon = tail_style.icon, icon_state = tail_style.clip_mask)
+
+			Cutter.Blend("#000000", ICON_MULTIPLY)	// Make it all black.
+
+			Cutter.SwapColor("#00000000", "#FFFFFFFF")	// Everywhere empty, make white.
+			Cutter.SwapColor("#000000FF", "#00000000")	// Everywhere black, make empty.
+
+			Cutter.Blend("#000000", ICON_MULTIPLY)	// Black again.
+
 		for(var/obj/item/organ/external/part in organs)
 			if(isnull(part) || part.is_stump())
 				continue
 			var/icon/temp = part.get_icon(skeleton)
+
+			if((part.organ_tag in list(BP_L_LEG, BP_R_LEG, BP_L_FOOT, BP_R_FOOT)) && Cutter)
+				temp.Blend(Cutter, ICON_AND, x = -16)
+
 			//That part makes left and right legs drawn topmost and lowermost when human looks WEST or EAST
 			//And no change in rendering for other parts (they icon_position is 0, so goes to 'else' part)
 			if(part.icon_position & (LEFT | RIGHT))
@@ -518,7 +533,7 @@ var/global/list/damage_icon_parts = list() //see UpdateDamageIcon()
 				standing.underlays += underlay
 
 	for(var/mut in mutations)
-		if(LASER)
+		if(mut == LASER)
 			standing.overlays += "lasereyes_s" //TODO
 
 	overlays_standing[MUTATIONS_LAYER]	= standing
@@ -1043,18 +1058,18 @@ var/global/list/damage_icon_parts = list() //see UpdateDamageIcon()
 	if(QDESTROYING(src))
 		return
 
-	remove_layer(WATER_LAYER)
+	remove_layer(MOB_WATER_LAYER)
 
 	var/depth = check_submerged()
 	if(!depth || lying)
 		return
 
 	var/atom/A = loc // We'd better be swimming and on a turf
-	var/image/I = image(icon = 'icons/mob/submerged.dmi', icon_state = "human_swimming_[depth]", layer = BODY_LAYER+WATER_LAYER) //TODO: Improve
+	var/image/I = image(icon = 'icons/mob/submerged.dmi', icon_state = "human_swimming_[depth]", layer = BODY_LAYER+MOB_WATER_LAYER) //TODO: Improve
 	I.color = A.color
-	overlays_standing[WATER_LAYER] = I
+	overlays_standing[MOB_WATER_LAYER] = I
 
-	apply_layer(WATER_LAYER)
+	apply_layer(MOB_WATER_LAYER)
 
 /mob/living/carbon/human/proc/update_surgery()
 	if(QDESTROYING(src))
@@ -1092,6 +1107,17 @@ var/global/list/damage_icon_parts = list() //see UpdateDamageIcon()
 			overlay.Blend(rgb(src.r_wing2, src.g_wing2, src.b_wing2), wing_style.color_blend_mode)
 			wing_s.Blend(overlay, ICON_OVERLAY)
 			qdel(overlay)
+		if(wing_style.extra_overlay2)
+			var/icon/overlay = new/icon("icon" = wing_style.icon, "icon_state" = wing_style.extra_overlay2)
+			if(wing_style.ani_state)
+				overlay = new/icon("icon" = wing_style.icon, "icon_state" = wing_style.extra_overlay2_w)
+				overlay.Blend(rgb(src.r_wing3, src.g_wing3, src.b_wing3), wing_style.color_blend_mode)
+				wing_s.Blend(overlay, ICON_OVERLAY)
+				qdel(overlay)
+			else
+				overlay.Blend(rgb(src.r_wing3, src.g_wing3, src.b_wing3), wing_style.color_blend_mode)
+				wing_s.Blend(overlay, ICON_OVERLAY)
+				qdel(overlay)
 		return image(wing_s)
 
 /mob/living/carbon/human/proc/get_ears_overlay()
@@ -1102,6 +1128,11 @@ var/global/list/damage_icon_parts = list() //see UpdateDamageIcon()
 		if(ear_style.extra_overlay)
 			var/icon/overlay = new/icon("icon" = ear_style.icon, "icon_state" = ear_style.extra_overlay)
 			overlay.Blend(rgb(src.r_ears2, src.g_ears2, src.b_ears2), ear_style.color_blend_mode)
+			ears_s.Blend(overlay, ICON_OVERLAY)
+			qdel(overlay)
+		if(ear_style.extra_overlay2) //MORE COLOURS IS BETTERER
+			var/icon/overlay = new/icon("icon" = ear_style.icon, "icon_state" = ear_style.extra_overlay2)
+			overlay.Blend(rgb(src.r_ears3, src.g_ears3, src.b_ears3), ear_style.color_blend_mode)
 			ears_s.Blend(overlay, ICON_OVERLAY)
 			qdel(overlay)
 		return ears_s
@@ -1117,7 +1148,7 @@ var/global/list/damage_icon_parts = list() //see UpdateDamageIcon()
 		return image(tail_s)
 
 	//If you have a custom tail selected
-	if(tail_style && !(wear_suit && wear_suit.flags_inv & HIDETAIL && !isTaurTail(tail_style)))
+	if(tail_style && !(wear_suit && wear_suit.flags_inv & HIDETAIL && !istaurtail(tail_style)))
 		var/icon/tail_s = new/icon("icon" = tail_style.icon, "icon_state" = wagging && tail_style.ani_state ? tail_style.ani_state : tail_style.icon_state)
 		if(tail_style.do_colouration)
 			tail_s.Blend(rgb(src.r_tail, src.g_tail, src.b_tail), tail_style.color_blend_mode)
@@ -1133,7 +1164,19 @@ var/global/list/damage_icon_parts = list() //see UpdateDamageIcon()
 				tail_s.Blend(overlay, ICON_OVERLAY)
 				qdel(overlay)
 
-		if(isTaurTail(tail_style))
+		if(tail_style.extra_overlay2)
+			var/icon/overlay = new/icon("icon" = tail_style.icon, "icon_state" = tail_style.extra_overlay2)
+			if(wagging && tail_style.ani_state)
+				overlay = new/icon("icon" = tail_style.icon, "icon_state" = tail_style.extra_overlay2_w)
+				overlay.Blend(rgb(src.r_tail3, src.g_tail3, src.b_tail3), tail_style.color_blend_mode)
+				tail_s.Blend(overlay, ICON_OVERLAY)
+				qdel(overlay)
+			else
+				overlay.Blend(rgb(src.r_tail3, src.g_tail3, src.b_tail3), tail_style.color_blend_mode)
+				tail_s.Blend(overlay, ICON_OVERLAY)
+				qdel(overlay)
+
+		if(istaurtail(tail_style))
 			var/datum/sprite_accessory/tail/taur/taurtype = tail_style
 			if(taurtype.can_ride && !riding_datum)
 				riding_datum = new /datum/riding/taur(src)
@@ -1158,7 +1201,7 @@ var/global/list/damage_icon_parts = list() //see UpdateDamageIcon()
 //Human Overlays Indexes/////////
 #undef MUTATIONS_LAYER
 #undef SKIN_LAYER
-#undef DAMAGE_LAYER
+#undef MOB_DAM_LAYER
 #undef SURGERY_LAYER
 #undef UNDERWEAR_LAYER
 #undef SHOES_LAYER_ALT
@@ -1178,7 +1221,6 @@ var/global/list/damage_icon_parts = list() //see UpdateDamageIcon()
 #undef EYES_LAYER
 #undef FACEMASK_LAYER
 #undef HEAD_LAYER
-#undef COLLAR_LAYER
 #undef HANDCUFF_LAYER
 #undef LEGCUFF_LAYER
 #undef L_HAND_LAYER

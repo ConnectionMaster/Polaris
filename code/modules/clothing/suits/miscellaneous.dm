@@ -95,6 +95,7 @@
 	name = "red space suit replica"
 	icon = 'icons/obj/clothing/spacesuits.dmi'
 	icon_state = "syndicate"
+	default_worn_icon = 'icons/mob/spacesuit.dmi'
 	desc = "A plastic replica of the syndicate space suit, you'll look just like a real murderous syndicate agent in this! This is a toy, it is not made for use in space!"
 	w_class = ITEMSIZE_NORMAL
 	allowed = list(/obj/item/device/flashlight,/obj/item/weapon/tank/emergency/oxygen,/obj/item/toy)
@@ -250,13 +251,13 @@
 	body_parts_covered = UPPER_TORSO|ARMS
 	flags_inv = HIDETIE|HIDEHOLSTER
 
-obj/item/clothing/suit/kimono
+/obj/item/clothing/suit/kimono
 	name = "kimono"
 	desc = "A traditional Japanese kimono."
 	icon_state = "kimono"
 	addblends = "kimono_a"
 
-obj/item/clothing/suit/kamishimo
+/obj/item/clothing/suit/kamishimo
 	name = "kamishimo"
 	desc = "Traditional Japanese menswear."
 	icon_state = "kamishimo"

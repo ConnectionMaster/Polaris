@@ -149,6 +149,15 @@ var/list/flooring_types
 	build_type = /obj/item/stack/tile/grass/sif
 	has_base_range = 1
 
+/decl/flooring/grass/sif/forest
+	name = "thick growth"
+	desc = "A natural moss that has adapted to the sheer cold climate."
+	flags = TURF_REMOVE_SHOVEL
+	icon = 'icons/turf/outdoors.dmi'
+	icon_base = "grass_sif_dark"
+	build_type = /obj/item/stack/tile/grass/sif/forest
+	has_base_range = 1
+
 /decl/flooring/water
 	name = "water"
 	desc = "Water is wet, gosh, who knew!"
@@ -223,7 +232,7 @@ var/list/flooring_types
 /decl/flooring/snow
 	name = "snow"
 	desc = "A layer of many tiny bits of frozen water. It's hard to tell how deep it is."
-	icon = 'icons/turf/snow_new.dmi'
+	icon = 'icons/turf/outdoors.dmi'
 	icon_base = "snow"
 	footstep_sounds = list("human" = list(
 		'sound/effects/footstep/snow1.ogg',

@@ -269,6 +269,7 @@
 		R.hud_used.update_robot_modules_display()
 
 /obj/item/attackby(obj/item/weapon/W as obj, mob/user as mob)
+	. = ..()
 	if(istype(W, /obj/item/weapon/storage))
 		var/obj/item/weapon/storage/S = W
 		if(S.use_to_pickup)
@@ -312,7 +313,6 @@
 
 // apparently called whenever an item is removed from a slot, container, or anything else.
 /obj/item/proc/dropped(mob/user as mob)
-	..()
 	if(zoom)
 		zoom() //binoculars, scope, etc
 	appearance_flags &= ~NO_CLIENT_COLOR
@@ -352,6 +352,10 @@
 			playsound(src, drop_sound, 30)
 	else if(slot == slot_l_hand || slot == slot_r_hand)
 		playsound(src, pickup_sound, 20, preference = /datum/client_preference/pickup_sounds)
+	return
+
+// As above but for items being equipped to an active module on a robot.
+/obj/item/proc/equipped_robot(var/mob/user)
 	return
 
 //Defines which slots correspond to which slot flags
@@ -548,9 +552,7 @@ var/list/global/slot_flags_enumeration = list(
 	if(!hit_zone)
 		U.do_attack_animation(M)
 		playsound(src, 'sound/weapons/punchmiss.ogg', 25, 1, -1)
-		//visible_message("<span class='danger'>[U] attempts to stab [M] in the eyes, but misses!</span>")
-		for(var/mob/V in viewers(M))
-			V.show_message("<span class='danger'>[U] attempts to stab [M] in the eyes, but misses!</span>")
+		visible_message(SPAN_DANGER("\The [U] attempts to stab \the [M] in the eyes, but misses!"))
 		return
 
 	add_attack_logs(user,M,"Attack eyes with [name]")
@@ -693,7 +695,7 @@ modules/mob/living/carbon/human/life.dm if you die, you will be zoomed out.
 	if((usr.stat && !zoom) || !(istype(usr,/mob/living/carbon/human)))
 		to_chat(usr, "You are unable to focus through the [devicename]")
 		cannotzoom = 1
-	else if(!zoom && global_hud.darkMask[1] in usr.client.screen)
+	else if(!zoom && (global_hud.darkMask[1] in usr.client.screen))
 		to_chat(usr, "Your visor gets in the way of looking through the [devicename]")
 		cannotzoom = 1
 	else if(!zoom && usr.get_active_hand() != src)
@@ -901,31 +903,6 @@ modules/mob/living/carbon/human/life.dm if you die, you will be zoomed out.
 //STUB
 /obj/item/proc/apply_accessories(var/image/standing)
 	return standing
-
-/*
- *	Assorted tool procs, so any item can emulate any tool, if coded
-*/
-/obj/item/proc/is_screwdriver()
-	return FALSE
-
-/obj/item/proc/is_wrench()
-	return FALSE
-
-/obj/item/proc/is_crowbar()
-	return FALSE
-
-/obj/item/proc/is_wirecutter()
-	return FALSE
-
-// These next three might bug out or runtime, unless someone goes back and finds a way to generalize their specific code
-/obj/item/proc/is_cable_coil()
-	return FALSE
-
-/obj/item/proc/is_multitool()
-	return FALSE
-
-/obj/item/proc/is_welder()
-	return FALSE
 
 /obj/item/MouseEntered(location,control,params)
 	. = ..()

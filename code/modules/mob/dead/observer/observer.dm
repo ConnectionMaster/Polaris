@@ -8,14 +8,11 @@
 	desc = "It's a g-g-g-g-ghooooost!" //jinkies!
 	icon = 'icons/mob/ghost.dmi'
 	icon_state = "ghost"
-	layer = BELOW_MOB_LAYER
-	plane = PLANE_GHOSTS
-	alpha = 127
 	stat = DEAD
 	canmove = 0
 	blinded = 0
 	anchored = 1	//  don't get pushed around
-	invisibility = INVISIBILITY_OBSERVER
+
 	var/can_reenter_corpse
 	var/datum/hud/living/carbon/hud = null // hud
 	var/bootime = 0
@@ -90,27 +87,22 @@
 	var/cleanup_timer // Refernece to a timer that will delete this mob if no client returns
 
 /mob/observer/dead/New(mob/body)
+
+	appearance = body
+	invisibility = INVISIBILITY_OBSERVER
+	layer = BELOW_MOB_LAYER
+	plane = PLANE_GHOSTS
+	alpha = 127
+
 	sight |= SEE_TURFS | SEE_MOBS | SEE_OBJS | SEE_SELF
 	see_invisible = SEE_INVISIBLE_OBSERVER
 	see_in_dark = world.view //I mean. I don't even know if byond has occlusion culling... but...
-	plane = PLANE_GHOSTS //Why doesn't the var above work...???
 	verbs += /mob/observer/dead/proc/dead_tele
 
 	var/turf/T
 	if(ismob(body))
 		T = get_turf(body)				//Where is the body located?
 		attack_log = body.attack_log	//preserve our attack logs by copying them to our ghost
-
-		if (ishuman(body))
-			var/mob/living/carbon/human/H = body
-			icon = H.icon
-			icon_state = H.icon_state
-			add_overlay(H.overlays_standing) //All our equipment sprites
-		else
-			icon = body.icon
-			icon_state = body.icon_state
-			add_overlay(body.overlays)
-
 		gender = body.gender
 		if(body.mind && body.mind.name)
 			name = body.mind.name
@@ -124,6 +116,12 @@
 					name = capitalize(pick(first_names_female)) + " " + capitalize(pick(last_names))
 
 		mind = body.mind	//we don't transfer the mind but we keep a reference to it.
+
+		// Fix for naked ghosts.
+		// Unclear why this isn't being grabbed by appearance.
+		if(ishuman(body))
+			var/mob/living/carbon/human/H = body
+			add_overlay(H.overlays_standing)
 
 	if(!T)	T = pick(latejoin)			//Safety in case we cannot find the body's position
 	forceMove(T)
@@ -328,7 +326,28 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 	plane_holder.set_vis(VIS_CH_SPECIAL, antagHUD)
 	to_chat(src, "<font color='blue'><B>AntagHUD [antagHUD ? "Enabled" : "Disabled"]</B></font>")
 
-/mob/observer/dead/proc/dead_tele(var/area/A in return_sorted_areas())
+/mob/observer/dead/proc/jumpable_areas()
+	var/list/areas = return_sorted_areas()
+	if(client?.holder)
+		return areas
+
+	for(var/area/A as anything in areas)
+		if(A.z in using_map?.secret_levels)
+			areas -= A
+	return areas				
+
+/mob/observer/dead/proc/jumpable_mobs()
+	var/list/mobs = getmobs()
+	if(client?.holder)
+		return mobs
+
+	for(var/key in mobs)
+		var/mobz = get_z(mobs[key])
+		if(mobz in using_map?.secret_levels)
+			mobs -= key
+	return mobs
+
+/mob/observer/dead/proc/dead_tele(var/area/A in jumpable_areas())
 	set category = "Ghost"
 	set name = "Teleport"
 	set desc = "Teleport to a location"
@@ -338,26 +357,50 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 		return
 
 	if(!A)
-		A = input(usr, "Select an area:", "Ghost Teleport") as null|anything in return_sorted_areas()
+		A = input(usr, "Select an area:", "Ghost Teleport") as null|anything in jumpable_areas()
 	if(!A)
 		return
 	
 	usr.forceMove(pick(get_area_turfs(A)))
 	usr.on_mob_jump()
 
-/mob/observer/dead/verb/follow(input in getmobs())
+/mob/observer/dead/verb/follow(input in jumpable_mobs())
 	set category = "Ghost"
 	set name = "Follow" // "Haunt"
 	set desc = "Follow and haunt a mob."
 
 	if(!input)
-		input = input(usr, "Select a mob:", "Ghost Follow") as null|anything in getmobs()
+		input = input(usr, "Select a mob:", "Ghost Follow") as null|anything in jumpable_mobs()
 	if(!input)
 		return
 	
-	var/target = getmobs()[input]
+	var/target = jumpable_mobs()[input]
 	if(!target) return
 	ManualFollow(target)
+
+/mob/observer/dead/forceMove(atom/destination)
+	if(client?.holder)
+		return ..()
+
+	if(get_z(destination) in using_map?.secret_levels)
+		to_chat(src,SPAN_WARNING("Sorry, that z-level does not allow ghosts."))
+		if(following)
+			stop_following()
+		return
+
+	return ..()
+
+/mob/observer/dead/Move(atom/newloc, direct = 0, movetime)
+	if(client?.holder)
+		return ..()
+
+	if(get_z(newloc) in using_map?.secret_levels)
+		to_chat(src,SPAN_WARNING("Sorry, that z-level does not allow ghosts."))
+		if(following)
+			stop_following()
+		return
+
+	return ..()
 
 // This is the ghost's follow verb with an argument
 /mob/observer/dead/proc/ManualFollow(var/atom/movable/target)
@@ -367,6 +410,9 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 	var/turf/targetloc = get_turf(target)
 	if(check_holy(targetloc))
 		to_chat(usr, "<span class='warning'>You cannot follow a mob standing on holy grounds!</span>")
+		return
+	if(get_z(target) in using_map?.secret_levels)
+		to_chat(src, SPAN_WARNING("Sorry, that target is in an area that ghosts aren't allowed to go."))
 		return
 	if(target != src)
 		if(following && following == target)
@@ -415,7 +461,7 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 	set_dir(2) //reset dir so the right directional sprites show up
 	return ..()
 
-/mob/observer/dead/stop_orbit(datum/component/orbiter/orbits)
+/mob/observer/dead/stop_orbit()
 	. = ..()
 	//restart our floating animation after orbit is done.
 	pixel_y = 0
@@ -470,7 +516,7 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 
 	return (T && T.holy) && (is_manifest || (mind in cult.current_antagonists))
 
-/mob/observer/dead/verb/jumptomob(input in getmobs()) //Moves the ghost instead of just changing the ghosts's eye -Nodrak
+/mob/observer/dead/verb/jumptomob(input in jumpable_mobs()) //Moves the ghost instead of just changing the ghosts's eye -Nodrak
 	set category = "Ghost"
 	set name = "Jump to Mob"
 	set desc = "Teleport to a mob"
@@ -480,11 +526,11 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 		return
 
 	if(!input)
-		input = input(usr, "Select a mob:", "Ghost Jump") as null|anything in getmobs()
+		input = input(usr, "Select a mob:", "Ghost Jump") as null|anything in jumpable_mobs()
 	if(!input)
 		return
 
-	var/target = getmobs()[input]
+	var/target = jumpable_mobs()[input]
 	if (!target)//Make sure we actually have a target
 		return
 	else
@@ -783,7 +829,7 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 	plane_holder.set_vis(VIS_FULLBRIGHT, !seedarkness) //Inversion, because "not seeing" the darkness is "seeing" the lighting plane master.
 	plane_holder.set_vis(VIS_GHOSTS, ghostvision)
 
-mob/observer/dead/MayRespawn(var/feedback = 0)
+/mob/observer/dead/MayRespawn(var/feedback = 0)
 	if(!client)
 		return 0
 	if(mind && mind.current && mind.current.stat != DEAD && can_reenter_corpse)
@@ -907,3 +953,8 @@ mob/observer/dead/MayRespawn(var/feedback = 0)
 	to_chat(src, "<span class='ghostalert'><a href=?src=[REF(src)];reenter=1>(Click to re-enter)</a></span>")
 	if(sound)
 		SEND_SOUND(src, sound(sound))
+
+/mob/observer/dead/verb/respawn()
+	set name = "Respawn"
+	set category = "Ghost"
+	src.abandon_mob()

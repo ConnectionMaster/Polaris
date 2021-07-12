@@ -29,6 +29,7 @@
 	var/close_sound = 'sound/machines/door/blastdoorclose.ogg'
 	var/damage = BLAST_DOOR_CRUSH_DAMAGE
 	var/multiplier = 1 // The multiplier for how powerful our YEET is.
+	var/istransparent = 0
 
 	closed_layer = ON_WINDOW_LAYER // Above airlocks when closed
 	var/id = 1.0
@@ -108,10 +109,13 @@
 	src.density = 1
 	update_nearby_tiles()
 	src.update_icon()
-	src.set_opacity(1)
+	if(src.istransparent)
+		src.set_opacity(0)
+	else
+		src.set_opacity(1)
 	sleep(15)
 	src.operating = 0
-	
+
 	// Blast door crushing.
 	for(var/turf/turf in locs)
 		for(var/atom/movable/AM in turf)
@@ -276,10 +280,12 @@
 // Parameters: None
 // Description: Closes the door. Does necessary checks.
 /obj/machinery/door/blast/close()
+
 	if (src.operating || (stat & BROKEN || stat & NOPOWER))
 		return
-	force_close()
 
+	force_close()
+	return 1
 
 // Proc: repair()
 // Parameters: None
@@ -300,7 +306,7 @@
 
 // SUBTYPE: Regular
 // Your classical blast door, found almost everywhere.
-obj/machinery/door/blast/regular
+/obj/machinery/door/blast/regular
 	icon_state_open = "pdoor0"
 	icon_state_opening = "pdoorc0"
 	icon_state_closed = "pdoor1"
@@ -308,7 +314,7 @@ obj/machinery/door/blast/regular
 	icon_state = "pdoor1"
 	maxhealth = 600
 
-obj/machinery/door/blast/regular/open
+/obj/machinery/door/blast/regular/open
 	icon_state = "pdoor0"
 	density = 0
 	opacity = 0
@@ -322,6 +328,129 @@ obj/machinery/door/blast/regular/open
 	icon_state_closing = "shutterc1"
 	icon_state = "shutter1"
 	damage = SHUTTER_CRUSH_DAMAGE
+
+// SUBTYPE: Transparent
+// Not technically a blast door but operates like one. Allows air and light.
+/obj/machinery/door/blast/gate
+	name = "thick gate"
+	icon_state_open = "tshutter0"
+	icon_state_opening = "tshutterc0"
+	icon_state_closed = "tshutter1"
+	icon_state_closing = "tshutterc1"
+	icon_state = "tshutter1"
+	damage = SHUTTER_CRUSH_DAMAGE
+	maxhealth = 400
+	block_air_zones = 0
+	opacity = 0
+	istransparent = 1
+
+/obj/machinery/door/blast/gate/open
+	icon_state = "tshutter0"
+	density = 0
+
+/obj/machinery/door/blast/gate/thin
+	name = "thin gate"
+	icon_state_open = "shutter2_0"
+	icon_state_opening = "shutter2_c0"
+	icon_state_closed = "shutter2_1"
+	icon_state_closing = "shutter2_c1"
+	icon_state = "shutter2_1"
+	maxhealth = 200
+	opacity = 0
+
+/obj/machinery/door/blast/gate/thin/open
+	icon_state = "shutter2_1"
+	density = 0
+
+/obj/machinery/door/blast/gate/bars
+	name = "prison bars"
+	icon_state_open = "bars_0"
+	icon_state_opening = "bars_c0"
+	icon_state_closed = "bars_1"
+	icon_state_closing = "bars_c1"
+	icon_state = "bars_1"
+	maxhealth = 600
+	opacity = 0
+
+/obj/machinery/door/blast/gate/bars/open
+	icon_state = "bars_1"
+	density = 0
+
+// SUBTYPE: Multi-tile
+// Pod doors ported from Paradise
+
+ // Whoever wrote the old code for multi-tile spesspod doors needs to burn in hell. - Unknown
+ // Wise words. - Bxil
+/obj/machinery/door/blast/multi_tile
+	name = "large blast door"
+
+/obj/machinery/door/blast/multi_tile/Initialize(mapload)
+	. = ..()
+	apply_opacity_to_my_turfs(opacity)
+
+/obj/machinery/door/blast/multi_tile/open()
+	if((. = ..()))
+		apply_opacity_to_my_turfs(opacity)
+
+/obj/machinery/door/blast/multi_tile/close()
+	if((. = ..()))
+		apply_opacity_to_my_turfs(opacity)
+
+/obj/machinery/door/blast/multi_tile/Destroy()
+	apply_opacity_to_my_turfs(0)
+	return ..()
+
+//Multi-tile poddoors don't turn invisible automatically, so we change the opacity of the turfs below instead one by one.
+/obj/machinery/door/blast/multi_tile/proc/apply_opacity_to_my_turfs(new_opacity)
+	for(var/turf/T in locs)
+		T.opacity = new_opacity
+		T.has_opaque_atom = new_opacity
+		T.reconsider_lights()
+	update_nearby_tiles()
+
+/obj/machinery/door/blast/multi_tile
+	icon_state_open = "open"
+	icon_state_opening = "opening"
+	icon_state_closed = "closed"
+	icon_state_closing = "closing"
+	icon_state = "closed"
+
+/obj/machinery/door/blast/multi_tile/four_tile_ver
+	icon = 'icons/obj/doors/1x4blast_vert.dmi'
+	bound_height = 128
+	width = 4
+	dir = NORTH
+
+/obj/machinery/door/blast/multi_tile/three_tile_ver
+	icon = 'icons/obj/doors/1x3blast_vert.dmi'
+	bound_height = 96
+	width = 3
+	dir = NORTH
+
+/obj/machinery/door/blast/multi_tile/two_tile_ver
+	icon = 'icons/obj/doors/1x2blast_vert.dmi'
+	bound_height = 64
+	width = 2
+	dir = NORTH
+
+/obj/machinery/door/blast/multi_tile/four_tile_hor
+	icon = 'icons/obj/doors/1x4blast_hor.dmi'
+	bound_width = 128
+	width = 4
+	dir = EAST
+
+/obj/machinery/door/blast/multi_tile/three_tile_hor
+	icon = 'icons/obj/doors/1x3blast_hor.dmi'
+	bound_width = 96
+	width = 3
+	dir = EAST
+
+/obj/machinery/door/blast/multi_tile/two_tile_hor
+	icon = 'icons/obj/doors/1x2blast_hor.dmi'
+	bound_width = 64
+	width = 2
+	dir = EAST
+
 
 #undef BLAST_DOOR_CRUSH_DAMAGE
 #undef SHUTTER_CRUSH_DAMAGE

@@ -34,7 +34,7 @@
 	..()
 	update()
 
-/turf/simulated/open/ChangeTurf()
+/turf/simulated/open/ChangeTurf(var/turf/N, var/tell_universe, var/force_lighting_update, var/preserve_outdoors)
 	var/turf/T = GetBelow(src)
 	if(T)
 		GLOB.turf_entered_event.unregister(T, src, .proc/BelowOpenUpdated)
@@ -52,13 +52,6 @@
 
 /turf/simulated/open/Entered(var/atom/movable/mover, var/atom/oldloc)
 	..()
-
-	// Going down stairs from the topstair piece
-	var/obj/structure/stairs/top/T = locate(/obj/structure/stairs/top) in oldloc
-	if(T && mover.dir == turn(T.dir, 180) && T.check_integrity())
-		T.use_stairs(mover, oldloc)
-		return
-
 	mover.fall()
 
 /turf/simulated/open/proc/BelowOpenUpdated(turf/T, atom/movable/AM, old_loc)
@@ -73,7 +66,7 @@
 /turf/simulated/open/proc/update()
 	plane = OPENSPACE_PLANE + src.z
 	below = GetBelow(src)
-	turf_changed_event.register(below, src, /turf/simulated/open/update_icon)
+	turf_changed_event.register(below, src, /atom/proc/update_icon)
 	levelupdate()
 	below.update_icon() // So the 'ceiling-less' overlay gets added.
 	for(var/atom/movable/A in src)

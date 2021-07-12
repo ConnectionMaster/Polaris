@@ -59,7 +59,7 @@
 			if(lattice)
 				var/pull_up_time = max(5 SECONDS + (src.movement_delay() * 10), 1)
 				to_chat(src, "<span class='notice'>You grab \the [lattice] and start pulling yourself upward...</span>")
-				destination.audible_message("<span class='notice'>You hear something climbing up \the [lattice].</span>")
+				destination.audible_message("<span class='notice'>You hear something climbing up \the [lattice].</span>", runemessage = "clank clang")
 				if(do_after(src, pull_up_time))
 					to_chat(src, "<span class='notice'>You pull yourself up.</span>")
 				else
@@ -74,7 +74,7 @@
 				if(!destination?.Enter(src, old_dest))
 					to_chat(src, "<span class='notice'>There's something in the way up above in that direction, try another.</span>")
 					return 0
-				destination.audible_message("<span class='notice'>You hear something climbing up \the [catwalk].</span>")
+				destination.audible_message("<span class='notice'>You hear something climbing up \the [catwalk].</span>", runemessage = "clank clang")
 				if(do_after(src, pull_up_time))
 					to_chat(src, "<span class='notice'>You pull yourself up.</span>")
 				else
@@ -442,8 +442,10 @@
 			adjustBruteLoss(rand(damage_min, damage_max))
 		Weaken(4)
 		updatehealth()
-		return
-	return
+
+/mob/living/carbon/human/fall_impact(atom/hit_atom, damage_min, damage_max, silent, planetary)
+	if(!species?.handle_falling(src, hit_atom, damage_min, damage_max, silent, planetary))
+		..()
 
 //Using /atom/movable instead of /obj/item because I'm not sure what all humans can pick up or wear
 /atom/movable
